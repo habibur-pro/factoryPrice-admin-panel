@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   FormControl,
   FormField,
@@ -8,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,16 +23,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, FileText, Upload } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { useAddCategoryMutation, useGetAllCategoryQuery, useGetSubcategoryQuery } from "@/redux/api/categoryApi";
+import { useAddSubcategoryMutation } from "@/redux/api/subcategoryApi";
+import { ICategory, ISubcategory } from "@/types";
+import { FileText, Plus, Upload, X } from "lucide-react";
+import { useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { toast } from "sonner";
 
 interface PricingTier {
   quantity: number;
@@ -52,13 +56,21 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
   const [subcategoryDialogOpen, setSubcategoryDialogOpen] = useState(false);
 
   // Mock categories for the select
-  const [categories, setCategories] = useState([
-    { value: "electronics", label: "Electronics" },
-    { value: "clothing", label: "Clothing & Apparel" },
-    { value: "home", label: "Home & Garden" },
-    { value: "beauty", label: "Beauty & Personal Care" },
-    { value: "sports", label: "Sports & Outdoors" },
-  ]);
+  // const [categories, setCategories] = useState([
+  //   { value: "electronics", label: "Electronics" },
+  //   { value: "clothing", label: "Clothing & Apparel" },
+  //   { value: "home", label: "Home & Garden" },
+  //   { value: "beauty", label: "Beauty & Personal Care" },
+  //   { value: "sports", label: "Sports & Outdoors" },
+  // ]);
+
+  // redux 
+  const [addCategory]= useAddCategoryMutation()
+  const [addSubcategory]= useAddSubcategoryMutation()
+  const {data:categoryRes} = useGetAllCategoryQuery("")
+  const {data:subcategoryRes} = useGetSubcategoryQuery(selectedCategory,{skip:!selectedCategory})
+  const categories = categoryRes?.data;
+  const subcategories = subcategoryRes?.data;
 
   // Mock subcategories
   const [subcategoriesMap, setSubcategoriesMap] = useState<
@@ -133,59 +145,50 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
   };
 
   // Handle new category creation
-  const handleAddCategory = () => {
+  const handleAddCategory = async() => {
     if (newCategoryName) {
       const value = newCategoryName.toLowerCase().replace(/\s+/g, "-");
-      console.log({ Label: newCategoryName, value, icon: newCategoryIcon });
-      // Add new category
-      // setCategories([
-      //   ...categories,
-      //   {
-      //     value,
-      //     label: newCategoryName,
-      //   },
-      // ]);
+      const catData = { Label: newCategoryName, value, icon: newCategoryIcon };
+      const formData = new FormData();
+      formData.append("categoryName", catData.value);
+      formData.append("slug", catData.value);
+      if(catData.icon)
+      {
+        formData.append("icon", catData.icon);
+      }
+      try {
+        await addCategory(formData).unwrap();
+        toast.success("category added")
+        setCategoryDialogOpen(false)
+      } catch (error:any) {
+        toast.error(error?.data?.message || error?.message)
+      }
 
-      // Initialize empty subcategories array for this category
-      setSubcategoriesMap({
-        ...subcategoriesMap,
-        [value]: [],
-      });
-
-      // Select the new category
-      setValue("category", value);
-      setValue("subcategory", "");
-
-      // Reset form
-      setNewCategoryName("");
-      setNewCategoryIcon(null);
-      setCategoryDialogOpen(false);
     }
   };
 
   // Handle new subcategory creation
-  const handleAddSubcategory = () => {
+  const handleAddSubcategory = async() => {
     if (newSubcategoryName && selectedCategory) {
       const value = newSubcategoryName.toLowerCase().replace(/\s+/g, "-");
+      const formData = new FormData();
+      formData.append("categoryName", newSubcategoryName);
+      formData.append("slug", newCategoryName);
+      if(newSubcategoryIcon)
+      {
+        formData.append("icon", newSubcategoryIcon);
+      }
+      if(selectedCategory)
+      {
+        formData.append("parentCategoryName",selectedCategory );
+      }
+      try {
+        await addSubcategory(formData).unwrap()
+        toast.success("subcategory added")
+      } catch (error:any) {
+         toast.error(error?.data?.message || error?.message)
+      }
 
-      // Add new subcategory to the selected category
-      const updatedSubcategories = {
-        ...subcategoriesMap,
-        [selectedCategory]: [
-          ...(subcategoriesMap[selectedCategory] || []),
-          { value, label: newSubcategoryName },
-        ],
-      };
-
-      setSubcategoriesMap(updatedSubcategories);
-
-      // Select the new subcategory
-      setValue("subcategory", value);
-
-      // Reset form
-      setNewSubcategoryName("");
-      setNewSubcategoryIcon(null);
-      setSubcategoryDialogOpen(false);
     }
   };
 
@@ -249,9 +252,9 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
+                    {categories?.length && categories.map((category:ICategory) => (
+                      <SelectItem className="capitalize" key={category.categoryName} value={category.categoryName}>
+                        {category.categoryName}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -355,12 +358,13 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {availableSubcategories.map((subcategory) => (
+                    {subcategories?.length && subcategories.map((subcategory:ISubcategory) => (
                       <SelectItem
-                        key={subcategory.value}
-                        value={subcategory.value}
+                      className="capitalize"
+                        key={subcategory.categoryName}
+                        value={subcategory.categoryName}
                       >
-                        {subcategory.label}
+                        {subcategory.categoryName} 
                       </SelectItem>
                     ))}
                   </SelectContent>
