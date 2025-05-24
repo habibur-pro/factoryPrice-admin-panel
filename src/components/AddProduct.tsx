@@ -1,14 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import BasicInfo from "@/components/BasicInfo";
 import ProductVariants from "@/components/ProductVariants";
 import ProductMedia from "@/components/ProductMedia";
-import SEOSection from "@/components/SEOSection";
 import PromotionsSection from "@/components/PromotionsSection";
 import PublishSettings from "@/components/PublishSettings";
 import {
@@ -31,23 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import SpecificationsSection from "./SpecificationsSection";
-
-// Define the product schema using Zod
-const productSchema = z.object({
-  name: z.string().min(1, { message: "Product name is required" }),
-  sku: z.string().min(1, { message: "SKU is required" }),
-  category: z.string().min(1, { message: "Category is required" }),
-  subcategory: z.string().optional(),
-  basePrice: z.coerce
-    .number()
-    .positive({ message: "Base price must be positive" }),
-  description: z.string().optional(),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  isActive: z.boolean().default(false),
-});
-
-type ProductFormValues = z.infer<typeof productSchema>;
+import { ProductFormValues, productSchema } from "@/validation";
 
 const AddProduct = () => {
   const router = useRouter();
@@ -69,15 +51,36 @@ const AddProduct = () => {
       name: "",
       sku: "",
       category: "",
+      subcategory:"",
+      description:"",
       basePrice: 0,
       isActive: false,
     },
   });
 
-  const onSubmit = async (data: ProductFormValues) => {
-    setSaving(true);
+  const onSubmit = async (data: FieldValues) => {
+    if (tags?.length === 0) {
+      toast.error("Tags is required.");
+      return;
+    }
+    if (pricing?.length === 0) {
+      toast.error("Pricing is required.");
+      return;
+    }
+    if (variants?.length === 0) {
+      toast.error("Variant is required.");
+      return;
+    }
+    if (specs?.length === 0) {
+      toast.error("Specification is required.");
+      return;
+    }
+
+    if (images?.length === 0) {
+      toast.error("Please upload at least one image.");
+      return;
+    }
     try {
-      // Here you would typically send the data to your backend
       console.log("Form Data:", {
         ...data,
         images,
@@ -86,7 +89,7 @@ const AddProduct = () => {
         specs,
         pricing,
       });
-
+      setSaving(true);
       toast.success("Product saved successfully!");
 
       // Navigate back to products page after successful save
@@ -199,7 +202,12 @@ const AddProduct = () => {
                     Basic Information
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pt-2">
-                    <BasicInfo pricing={pricing} setPricing={setPricing} />
+                    <BasicInfo
+                      tags={tags}
+                      setTags={setTags}
+                      pricing={pricing}
+                      setPricing={setPricing}
+                    />
                   </AccordionContent>
                 </AccordionItem>
 
@@ -237,9 +245,6 @@ const AddProduct = () => {
                   <AccordionTrigger className="px-4">
                     SEO & Description
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-2">
-                    <SEOSection tags={tags} setTags={setTags} />
-                  </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem

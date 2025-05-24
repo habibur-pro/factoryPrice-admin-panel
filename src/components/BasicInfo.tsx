@@ -23,13 +23,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddCategoryMutation, useGetAllCategoryQuery, useGetSubcategoryQuery } from "@/redux/api/categoryApi";
+import {
+  useAddCategoryMutation,
+  useGetAllCategoryQuery,
+  useGetSubcategoryQuery,
+} from "@/redux/api/categoryApi";
 import { useAddSubcategoryMutation } from "@/redux/api/subcategoryApi";
 import { ICategory, ISubcategory } from "@/types";
 import { FileText, Plus, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
+import { Textarea } from "./ui/textarea";
 
 interface PricingTier {
   quantity: number;
@@ -39,10 +44,12 @@ interface PricingTier {
 interface BasicInfoProps {
   pricing: PricingTier[];
   setPricing: React.Dispatch<React.SetStateAction<PricingTier[]>>;
+  tags: string[];
+  setTags: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
-  const { control, watch, setValue } = useFormContext();
+const BasicInfo = ({ pricing, setPricing, tags, setTags }: BasicInfoProps) => {
+  const { control, watch } = useFormContext();
   const selectedCategory = watch("category");
 
   // States for category/subcategory management
@@ -55,59 +62,33 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [subcategoryDialogOpen, setSubcategoryDialogOpen] = useState(false);
 
-  // Mock categories for the select
-  // const [categories, setCategories] = useState([
-  //   { value: "electronics", label: "Electronics" },
-  //   { value: "clothing", label: "Clothing & Apparel" },
-  //   { value: "home", label: "Home & Garden" },
-  //   { value: "beauty", label: "Beauty & Personal Care" },
-  //   { value: "sports", label: "Sports & Outdoors" },
-  // ]);
-
-  // redux 
-  const [addCategory]= useAddCategoryMutation()
-  const [addSubcategory]= useAddSubcategoryMutation()
-  const {data:categoryRes} = useGetAllCategoryQuery("")
-  const {data:subcategoryRes} = useGetSubcategoryQuery(selectedCategory,{skip:!selectedCategory})
+  // redux
+  const [addCategory] = useAddCategoryMutation();
+  const [addSubcategory] = useAddSubcategoryMutation();
+  const { data: categoryRes } = useGetAllCategoryQuery("");
+  const { data: subcategoryRes } = useGetSubcategoryQuery(selectedCategory, {
+    skip: !selectedCategory,
+  });
   const categories = categoryRes?.data;
   const subcategories = subcategoryRes?.data;
+  const [tagInput, setTagInput] = useState("");
+  const addTag = () => {
+    if (tagInput && !tags.includes(tagInput)) {
+      setTags([...tags, tagInput]);
+      setTagInput("");
+    }
+  };
 
-  // Mock subcategories
-  const [subcategoriesMap, setSubcategoriesMap] = useState<
-    Record<string, { value: string; label: string }[]>
-  >({
-    electronics: [
-      { value: "smartphones", label: "Smartphones" },
-      { value: "laptops", label: "Laptops & Computers" },
-      { value: "audio", label: "Audio & Headphones" },
-      { value: "cameras", label: "Cameras & Photography" },
-    ],
-    clothing: [
-      { value: "mens", label: "Men's Clothing" },
-      { value: "womens", label: "Women's Clothing" },
-      { value: "kids", label: "Kids & Baby Clothing" },
-      { value: "accessories", label: "Accessories" },
-    ],
-    home: [
-      { value: "furniture", label: "Furniture" },
-      { value: "kitchen", label: "Kitchen & Dining" },
-      { value: "bedding", label: "Bedding & Bath" },
-      { value: "decor", label: "Home Decor" },
-    ],
-    beauty: [
-      { value: "skincare", label: "Skincare" },
-      { value: "makeup", label: "Makeup" },
-      { value: "haircare", label: "Haircare" },
-      { value: "fragrances", label: "Fragrances" },
-    ],
-    sports: [
-      { value: "fitness", label: "Fitness Equipment" },
-      { value: "outdoor", label: "Outdoor Recreation" },
-      { value: "team-sports", label: "Team Sports" },
-      { value: "apparel", label: "Sports Apparel" },
-    ],
-  });
+  const removeTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTag();
+    }
+  };
   // Add a new pricing tier
   const addPricingTier = () => {
     // Get the highest quantity from current tiers
@@ -145,57 +126,47 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
   };
 
   // Handle new category creation
-  const handleAddCategory = async() => {
+  const handleAddCategory = async () => {
     if (newCategoryName) {
       const value = newCategoryName.toLowerCase().replace(/\s+/g, "-");
       const catData = { Label: newCategoryName, value, icon: newCategoryIcon };
       const formData = new FormData();
       formData.append("categoryName", catData.value);
       formData.append("slug", catData.value);
-      if(catData.icon)
-      {
+      if (catData.icon) {
         formData.append("icon", catData.icon);
       }
       try {
         await addCategory(formData).unwrap();
-        toast.success("category added")
-        setCategoryDialogOpen(false)
-      } catch (error:any) {
-        toast.error(error?.data?.message || error?.message)
+        toast.success("category added");
+        setCategoryDialogOpen(false);
+      } catch (error: any) {
+        toast.error(error?.data?.message || error?.message);
       }
-
     }
   };
 
   // Handle new subcategory creation
-  const handleAddSubcategory = async() => {
+  const handleAddSubcategory = async () => {
     if (newSubcategoryName && selectedCategory) {
       const value = newSubcategoryName.toLowerCase().replace(/\s+/g, "-");
       const formData = new FormData();
-      formData.append("categoryName", newSubcategoryName);
-      formData.append("slug", newCategoryName);
-      if(newSubcategoryIcon)
-      {
+      formData.append("categoryName", value);
+      formData.append("slug", value);
+      if (newSubcategoryIcon) {
         formData.append("icon", newSubcategoryIcon);
       }
-      if(selectedCategory)
-      {
-        formData.append("parentCategoryName",selectedCategory );
+      if (selectedCategory) {
+        formData.append("parentCategoryName", selectedCategory);
       }
       try {
-        await addSubcategory(formData).unwrap()
-        toast.success("subcategory added")
-      } catch (error:any) {
-         toast.error(error?.data?.message || error?.message)
+        await addSubcategory(formData).unwrap();
+        toast.success("subcategory added");
+      } catch (error: any) {
+        toast.error(error?.data?.message || error?.message);
       }
-
     }
   };
-
-  // Get subcategories for the currently selected category
-  const availableSubcategories = selectedCategory
-    ? subcategoriesMap[selectedCategory] || []
-    : [];
 
   return (
     <div className="space-y-6">
@@ -252,11 +223,16 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories?.length && categories.map((category:ICategory) => (
-                      <SelectItem className="capitalize" key={category.categoryName} value={category.categoryName}>
-                        {category.categoryName}
-                      </SelectItem>
-                    ))}
+                    {categories?.length &&
+                      categories.map((category: ICategory) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={category.categoryName}
+                          value={category.categoryName}
+                        >
+                          {category.categoryName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
 
@@ -358,15 +334,16 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {subcategories?.length && subcategories.map((subcategory:ISubcategory) => (
-                      <SelectItem
-                      className="capitalize"
-                        key={subcategory.categoryName}
-                        value={subcategory.categoryName}
-                      >
-                        {subcategory.categoryName} 
-                      </SelectItem>
-                    ))}
+                    {subcategories?.length &&
+                      subcategories.map((subcategory: ISubcategory) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={subcategory.categoryName}
+                          value={subcategory.categoryName}
+                        >
+                          {subcategory.categoryName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
 
@@ -455,6 +432,67 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
             </FormItem>
           )}
         />
+      </div>
+      <div className="pt-6 border-t">
+        <FormField
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Describe your product in detail..."
+                  className="min-h-[150px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className=" pt-6 border-t space-y-2">
+          <div className="flex items-center">
+            <FormLabel>Product Tags/Keywords</FormLabel>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags.map((tag, index) => (
+              <div
+                key={index}
+                className="flex items-center bg-secondary/50 px-3 py-1 rounded-full text-sm"
+              >
+                <span>{tag}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 ml-1"
+                  onClick={() => removeTag(index)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              placeholder="Add keyword (press Enter)"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1"
+            />
+            <Button type="button" onClick={addTag} disabled={!tagInput.trim()}>
+              Add
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Add keywords that help customers find your product
+          </p>
+        </div>
       </div>
 
       <div className="pt-6 border-t">
