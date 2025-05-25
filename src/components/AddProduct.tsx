@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import BasicInfo from "@/components/BasicInfo";
-import ProductVariants from "@/components/ProductVariants";
 import ProductMedia from "@/components/ProductMedia";
 import PromotionsSection from "@/components/PromotionsSection";
 import PublishSettings from "@/components/PublishSettings";
@@ -30,6 +29,7 @@ import {
 import { useRouter } from "next/navigation";
 import SpecificationsSection from "./SpecificationsSection";
 import { ProductFormValues, productSchema } from "@/validation";
+import ProductVariants from "./ProductVariants";
 
 const AddProduct = () => {
   const router = useRouter();
@@ -51,8 +51,8 @@ const AddProduct = () => {
       name: "",
       sku: "",
       category: "",
-      subcategory:"",
-      description:"",
+      subcategory: "",
+      description: "",
       basePrice: 0,
       isActive: false,
     },
