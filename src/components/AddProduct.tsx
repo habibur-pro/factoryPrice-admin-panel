@@ -30,9 +30,11 @@ import { useRouter } from "next/navigation";
 import SpecificationsSection from "./SpecificationsSection";
 import { ProductFormValues, productSchema } from "@/validation";
 import ProductVariants from "./ProductVariants";
+import { useAddProductMutation } from "@/redux/api/productApi";
 
 const AddProduct = () => {
   const router = useRouter();
+  const [addProductMutation] = useAddProductMutation();
   const [images, setImages] = useState<File[]>([]);
   const [variants, setVariants] = useState<any[]>([]);
   const [tags, setTags] = useState<string[]>([]);
@@ -55,6 +57,7 @@ const AddProduct = () => {
       description: "",
       basePrice: 0,
       isActive: false,
+      minOrderQuantity: 10,
     },
   });
 
@@ -81,21 +84,22 @@ const AddProduct = () => {
       return;
     }
     try {
-      console.log("Form Data:", {
+      const formData = new FormData();
+      const productData = {
         ...data,
-        images,
         variants,
         tags,
         specs,
         pricing,
+      };
+      formData.append("data", JSON.stringify(productData));
+      images.forEach((image) => {
+        formData.append("productImage", image);
       });
+      console.log(formData);
       setSaving(true);
+      await addProductMutation(formData).unwrap();
       toast.success("Product saved successfully!");
-
-      // Navigate back to products page after successful save
-      // setTimeout(() => {
-      //   router.push("/dashboard/products");
-      // }, 2000);
     } catch (error) {
       toast.error("Failed to save product");
       console.error(error);

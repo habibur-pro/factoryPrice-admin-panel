@@ -506,6 +506,35 @@ const BasicInfo = ({ pricing, setPricing, tags, setTags }: BasicInfoProps) => {
         <div className="space-y-6">
           <FormField
             control={control}
+            name="minOrderQuantity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Min order quantity</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2">
+                      $
+                    </span>
+                    <Input
+                      type="number"
+                      step="1"
+                      min="10"
+                      className="pl-7"
+                      placeholder="1"
+                      {...field}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        field.onChange(isNaN(value) ? 0 : value);
+                      }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
             name="basePrice"
             render={({ field }) => (
               <FormItem>
@@ -517,10 +546,10 @@ const BasicInfo = ({ pricing, setPricing, tags, setTags }: BasicInfoProps) => {
                     </span>
                     <Input
                       type="number"
-                      step="0.01"
-                      min="0"
+                      step="1"
+                      min="1"
                       className="pl-7"
-                      placeholder="0.00"
+                      placeholder="1"
                       {...field}
                       onChange={(e) => {
                         const value = parseFloat(e.target.value);
