@@ -1,24 +1,36 @@
 import { Button } from "@/components/ui/button";
-import HierarchicalVariantBuilder from "./HierarchicalVariantBuilder";
+import ColorVariantBuilder from "./ColorVariantBuilder";
 import { RefreshCcw } from "lucide-react";
 
-// Updated VariantCombination type to match the required structure
-interface VariantCombination {
-  id: string;
-  group: string;
-  label: string;
-  value: string;
-  stock: number;
+interface SizeQuantity {
+  size: string;
+  quantity: string;
+}
+
+interface ColorVariant {
+  color: string;
+  sizes: SizeQuantity[];
 }
 
 interface ProductVariantsProps {
-  variants: VariantCombination[];
-  setVariants: React.Dispatch<React.SetStateAction<VariantCombination[]>>;
+  variants: ColorVariant[];
+  setVariants: React.Dispatch<React.SetStateAction<ColorVariant[]>>;
 }
 
-const ProductVariants2 = ({ variants, setVariants }: ProductVariantsProps) => {
+const ProductVariants = ({ variants, setVariants }: ProductVariantsProps) => {
   const resetAllVariants = () => {
     setVariants([]);
+  };
+
+  const getTotalStock = () => {
+    return variants.reduce((total, variant) => {
+      return (
+        total +
+        variant.sizes.reduce((sizeTotal, size) => {
+          return sizeTotal + parseInt(size.quantity || "0");
+        }, 0)
+      );
+    }, 0);
   };
 
   return (
@@ -27,8 +39,7 @@ const ProductVariants2 = ({ variants, setVariants }: ProductVariantsProps) => {
         <div>
           <h3 className="text-md font-medium">Product Variants</h3>
           <p className="text-sm text-muted-foreground">
-            Create variant groups like Color, Size and set individual stock for
-            each combination
+            Create color variants with different sizes and stock quantities
           </p>
         </div>
         <Button
@@ -42,25 +53,19 @@ const ProductVariants2 = ({ variants, setVariants }: ProductVariantsProps) => {
         </Button>
       </div>
 
-      <HierarchicalVariantBuilder
-        variantTypes={[]} // Not used anymore
-        variants={variants}
-        setVariants={setVariants}
-      />
+      <ColorVariantBuilder variants={variants} setVariants={setVariants} />
 
       {variants.length > 0 && (
         <div className="mt-6 p-4 bg-secondary/20 rounded-lg">
           <h4 className="font-medium mb-2">Summary</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">Total Variants:</span>
+              <span className="text-muted-foreground">Total Colors:</span>
               <span className="font-medium ml-2">{variants.length}</span>
             </div>
             <div>
               <span className="text-muted-foreground">Total Stock:</span>
-              <span className="font-medium ml-2">
-                {variants.reduce((sum, v) => sum + (v.stock || 0), 0)}
-              </span>
+              <span className="font-medium ml-2">{getTotalStock()}</span>
             </div>
           </div>
         </div>
@@ -69,4 +74,4 @@ const ProductVariants2 = ({ variants, setVariants }: ProductVariantsProps) => {
   );
 };
 
-export default ProductVariants2;
+export default ProductVariants;
