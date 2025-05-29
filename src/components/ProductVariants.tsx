@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import ColorVariantBuilder from "./ColorVariantBuilder";
 import { RefreshCcw } from "lucide-react";
+import ColorVariantBuilder from "./ColorVariantBuilder";
 
 interface SizeQuantity {
   size: string;
@@ -15,21 +15,29 @@ interface ColorVariant {
 interface ProductVariantsProps {
   variants: ColorVariant[];
   setVariants: React.Dispatch<React.SetStateAction<ColorVariant[]>>;
+  setTotalQuantity: React.Dispatch<React.SetStateAction<number>>; // Optional, if you need to set total quantity elsewhere
 }
 
-const ProductVariants = ({ variants, setVariants }: ProductVariantsProps) => {
+const ProductVariants = ({
+  variants,
+  setVariants,
+  setTotalQuantity,
+}: ProductVariantsProps) => {
   const resetAllVariants = () => {
     setVariants([]);
   };
 
   const getTotalStock = () => {
     return variants.reduce((total, variant) => {
-      return (
+      const totalQuantity =
         total +
         variant.sizes.reduce((sizeTotal, size) => {
           return sizeTotal + parseInt(size.quantity || "0");
-        }, 0)
-      );
+        }, 0);
+      if (setTotalQuantity) {
+        setTotalQuantity(totalQuantity);
+      }
+      return totalQuantity;
     }, 0);
   };
 

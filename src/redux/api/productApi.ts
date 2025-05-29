@@ -23,6 +23,15 @@ export const productApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.PRODUCT],
     }),
+
+    // get all categories
+    getSingleProduct: build.query({
+      query: (slug: string) => ({
+        url: `${BASE_URL}/${slug}`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.PRODUCT],
+    }),
   }),
 });
 

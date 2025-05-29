@@ -1,13 +1,15 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Eye, Plus } from "lucide-react";
 import DataTable, { Column } from "@/components/DataTable";
 import { Product } from "@/types/schemas";
 import { apiClient } from "@/utils/api";
+import { Eye, Plus } from "lucide-react";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
 const Products: React.FC = () => {
+  // const { data } = useGetAllProductQuery({});
+  // console.log("get all products", data?.data);
   const [products, setProducts] = useState<Product[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -58,12 +60,16 @@ const Products: React.FC = () => {
       render: (value, product) => (
         <div>
           <div className="font-medium text-gray-900">{value}</div>
-          <div className="text-xs text-gray-500">{product.title}</div>
+          <div className="text-xs text-gray-500">
+            {product.description.length > 60
+              ? product.description.slice(0, 60) + "..."
+              : product.description}
+          </div>
         </div>
       ),
     },
     {
-      key: "category.name",
+      key: "category.categoryName",
       label: "Category",
       render: (value) => (
         <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
@@ -136,7 +142,7 @@ const Products: React.FC = () => {
       label: "Actions",
       render: (_, product) => (
         <Link
-          href={`/products/${product._id}`}
+          href={`/products/${product?.slug}`}
           className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           <Eye className="w-4 h-4 mr-1" />
@@ -181,14 +187,14 @@ const Products: React.FC = () => {
           <p className="text-gray-600">Manage your product catalog</p>
         </div>
         <Link href="/products/add-product" className="cursor-pointer">
-          <Button className="flex items-center gap-1">
+          <Button className="flex items-center gap-1 cursor-pointer">
             <Plus className="h-4 w-4" />
             <span>Add Product</span>
           </Button>
         </Link>
       </div>
       <DataTable
-        data={products}
+        data={ products}
         columns={columns}
         searchValue={searchValue}
         onSearch={setSearchValue}
