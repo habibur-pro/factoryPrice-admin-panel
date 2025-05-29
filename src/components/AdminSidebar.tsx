@@ -8,8 +8,8 @@ import {
   ShoppingCart,
   Archive,
   Users,
-  BarChart2,
-  Mail,
+  // BarChart2,
+  // Mail,
   ChevronRight,
   ChevronLeft,
   LogOut,
@@ -31,8 +31,8 @@ const navItems: NavItem[] = [
   { icon: ShoppingCart, label: "Orders", path: "/orders" },
   { icon: Archive, label: "Inventory", path: "/inventory" },
   { icon: Users, label: "Customers", path: "/customers" },
-  { icon: BarChart2, label: "Sales Reports", path: "/reports" },
-  { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
+  // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
+  // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];
 
 type AdminSidebarProps = {
