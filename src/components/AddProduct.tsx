@@ -30,18 +30,28 @@ import { useRouter } from "next/navigation";
 import SpecificationsSection from "./SpecificationsSection";
 import { ProductFormValues, productSchema } from "@/validation";
 import ProductVariants from "./ProductVariants";
+import { useAddProductMutation } from "@/redux/api/productApi";
+interface SizeQuantity {
+  size: string;
+  quantity: string;
+}
 
+interface ColorVariant {
+  color: string;
+  sizes: SizeQuantity[];
+}
 const AddProduct = () => {
   const router = useRouter();
+  const [addProductMutation] = useAddProductMutation();
   const [images, setImages] = useState<File[]>([]);
-  const [variants, setVariants] = useState<any[]>([]);
+  const [variants, setVariants] = useState<ColorVariant[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [specs, setSpecs] = useState<
     { group: string; key: string; value: string }[]
   >([]);
-  const [pricing, setPricing] = useState<{ quantity: number; price: number }[]>(
-    [{ quantity: 1, price: 0 }]
-  );
+  const [pricing, setPricing] = useState<
+    { minQuantity: number; maxQuantity: number; price: number }[]
+  >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
   const [saving, setSaving] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
@@ -53,12 +63,14 @@ const AddProduct = () => {
       category: "",
       subcategory: "",
       description: "",
-      basePrice: 0,
       isActive: false,
+      minOrderQuantity: 10,
     },
   });
-
+  const { errors } = methods.formState;
+  console.log(errors);
   const onSubmit = async (data: FieldValues) => {
+    console.log("call");
     if (tags?.length === 0) {
       toast.error("Tags is required.");
       return;
@@ -81,21 +93,23 @@ const AddProduct = () => {
       return;
     }
     try {
-      console.log("Form Data:", {
+      const formData = new FormData();
+      const productData = {
         ...data,
-        images,
         variants,
         tags,
         specs,
         pricing,
+      };
+      formData.append("data", JSON.stringify(productData));
+      images.forEach((image) => {
+        formData.append("productImage", image);
       });
+      console.log(formData);
       setSaving(true);
+      await addProductMutation(formData).unwrap();
       toast.success("Product saved successfully!");
-
-      // Navigate back to products page after successful save
-      // setTimeout(() => {
-      //   router.push("/dashboard/products");
-      // }, 2000);
+      router.push("/products");
     } catch (error) {
       toast.error("Failed to save product");
       console.error(error);

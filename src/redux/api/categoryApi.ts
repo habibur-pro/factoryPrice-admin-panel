@@ -1,7 +1,7 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const BASE_URL = "/category";
+const BASE_URL = "/categories";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

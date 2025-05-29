@@ -10,25 +10,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, RefreshCcw, X } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
-// Updated VariantCombination type to match the required structure
+interface VariantGroup {
+  name: string;
+  values: string[];
+}
+
 interface VariantCombination {
-  id: string;
-  group: string;
-  label: string;
+  name: string;
   value: string;
-  stock: number;
+}
+
+interface Variant {
+  combination: VariantCombination[];
+  stockQuantity: number;
+}
+
+interface VariantData {
+  variantGroups: VariantGroup[];
+  variants: Variant[];
 }
 
 interface HierarchicalVariantBuilderProps {
-  variantTypes: any[];
-  variants: VariantCombination[];
-  setVariants: React.Dispatch<React.SetStateAction<VariantCombination[]>>;
+  variants: VariantData;
+  setVariants: React.Dispatch<React.SetStateAction<VariantData>>;
 }
-
-type VariantMap = Record<string, string[]>;
 
 // Predefined variant group options
 const VARIANT_GROUP_OPTIONS = [
@@ -48,30 +56,86 @@ const HierarchicalVariantBuilder = ({
   variants,
   setVariants,
 }: HierarchicalVariantBuilderProps) => {
-  // State management
   const [selectedVariantGroup, setSelectedVariantGroup] = useState("");
-  const [activeVariantNames, setActiveVariantNames] = useState<string[]>([]);
-  const [variantOptions, setVariantOptions] = useState<VariantMap>({});
   const [newOptions, setNewOptions] = useState<Record<string, string>>({});
+
+  // Generate all possible combinations
+  const generateAllCombinations = (
+    groups: VariantGroup[]
+  ): VariantCombination[][] => {
+    if (groups.length === 0) return [];
+    if (groups.length === 1) {
+      return groups[0].values.map((value) => [{ name: groups[0].name, value }]);
+    }
+
+    const [firstGroup, ...restGroups] = groups;
+    const restCombinations = generateAllCombinations(restGroups);
+
+    const allCombinations: VariantCombination[][] = [];
+
+    for (const value of firstGroup.values) {
+      for (const restCombination of restCombinations) {
+        allCombinations.push([
+          { name: firstGroup.name, value },
+          ...restCombination,
+        ]);
+      }
+    }
+
+    return allCombinations;
+  };
+
+  // Update variants when variant groups change
+  useEffect(() => {
+    if (variants.variantGroups.length === 0) {
+      setVariants((prev) => ({ ...prev, variants: [] }));
+      return;
+    }
+
+    const allCombinations = generateAllCombinations(variants.variantGroups);
+    const newVariants: Variant[] = allCombinations.map((combination) => {
+      // Check if this combination already exists
+      const existingVariant = variants.variants.find(
+        (v) =>
+          v.combination.length === combination.length &&
+          v.combination.every((c) =>
+            combination.some((nc) => nc.name === c.name && nc.value === c.value)
+          )
+      );
+
+      return {
+        combination,
+        stockQuantity: existingVariant ? existingVariant.stockQuantity : 0,
+      };
+    });
+
+    setVariants((prev) => ({ ...prev, variants: newVariants }));
+  }, [variants.variantGroups]);
 
   /**
    * Add a new variant group from dropdown
    */
   const addVariantGroup = (variantName: string) => {
-    if (!variantName || activeVariantNames.includes(variantName)) {
-      if (activeVariantNames.includes(variantName)) {
+    if (
+      !variantName ||
+      variants.variantGroups.some((g) => g.name === variantName)
+    ) {
+      if (variants.variantGroups.some((g) => g.name === variantName)) {
         toast.error("Variant group already exists!");
       }
       return;
     }
 
-    setActiveVariantNames([...activeVariantNames, variantName]);
-    setVariantOptions((prev) => ({ ...prev, [variantName]: [] }));
+    setVariants((prev) => ({
+      ...prev,
+      variantGroups: [...prev.variantGroups, { name: variantName, values: [] }],
+    }));
     setSelectedVariantGroup("");
+    toast.success(`${variantName} variant group added!`);
   };
 
   /**
-   * Add an option to a variant group and create a variant combination
+   * Add an option to a variant group
    */
   const addOption = (variantName: string) => {
     const value = newOptions[variantName]?.trim();
@@ -80,46 +144,36 @@ const HierarchicalVariantBuilder = ({
       return;
     }
 
-    if (variantOptions[variantName]?.includes(value)) {
+    const group = variants.variantGroups.find((g) => g.name === variantName);
+    if (group?.values.includes(value)) {
       toast.error("Option already exists!");
       return;
     }
 
-    const updated = { ...variantOptions };
-    updated[variantName] = [...(updated[variantName] || []), value];
-    setVariantOptions(updated);
+    setVariants((prev) => ({
+      ...prev,
+      variantGroups: prev.variantGroups.map((g) =>
+        g.name === variantName ? { ...g, values: [...g.values, value] } : g
+      ),
+    }));
+
     setNewOptions({ ...newOptions, [variantName]: "" });
-
-    // Create a new variant combination for this option
-    const newVariant: VariantCombination = {
-      id: `variant-${Date.now()}-${Math.random()}`,
-      group: variantName,
-      label: value,
-      value: value.toLowerCase().replace(/\s+/g, "-"),
-      stock: 0,
-    };
-
-    setVariants((prev) => [...prev, newVariant]);
+    toast.success(`${value} added to ${variantName}!`);
   };
 
   /**
-   * Remove a variant group and all its combinations
+   * Remove a variant group
    */
   const removeVariantGroup = (variantName: string) => {
-    const updatedNames = activeVariantNames.filter((v) => v !== variantName);
-    const updatedOptions = { ...variantOptions };
-    delete updatedOptions[variantName];
+    setVariants((prev) => ({
+      ...prev,
+      variantGroups: prev.variantGroups.filter((g) => g.name !== variantName),
+    }));
+
     const updatedNewOptions = { ...newOptions };
     delete updatedNewOptions[variantName];
-
-    // Remove all variants for this group
-    setVariants((prev) =>
-      prev.filter((variant) => variant.group !== variantName)
-    );
-
-    setActiveVariantNames(updatedNames);
-    setVariantOptions(updatedOptions);
     setNewOptions(updatedNewOptions);
+
     toast.success(`${variantName} variant group removed!`);
   };
 
@@ -127,91 +181,50 @@ const HierarchicalVariantBuilder = ({
    * Remove an option from a variant group
    */
   const removeOption = (variantName: string, option: string) => {
-    const updated = { ...variantOptions };
-    updated[variantName] = updated[variantName].filter((opt) => opt !== option);
-    setVariantOptions(updated);
-
-    // Remove the corresponding variant
-    setVariants((prev) =>
-      prev.filter(
-        (variant) =>
-          !(variant.group === variantName && variant.label === option)
-      )
-    );
+    setVariants((prev) => ({
+      ...prev,
+      variantGroups: prev.variantGroups.map((g) =>
+        g.name === variantName
+          ? { ...g, values: g.values.filter((v) => v !== option) }
+          : g
+      ),
+    }));
 
     toast.success(`${option} removed from ${variantName}!`);
   };
 
   /**
-   * Update a specific field of a variant
+   * Update stock quantity for a variant
    */
-  const updateVariant = (id: string, field: string, value: any) => {
-    setVariants((prevVariants) =>
-      prevVariants.map((variant) =>
-        variant.id === id ? { ...variant, [field]: value } : variant
-      )
-    );
-  };
-
-  /**
-   * Remove a variant combination
-   */
-  const removeVariantCombination = (id: string) => {
-    const variantToRemove = variants.find((v) => v.id === id);
-    if (variantToRemove) {
-      // Remove from variantOptions as well
-      const updated = { ...variantOptions };
-      updated[variantToRemove.group] = updated[variantToRemove.group].filter(
-        (opt) => opt !== variantToRemove.label
-      );
-      setVariantOptions(updated);
-    }
-
-    setVariants((prevVariants) =>
-      prevVariants.filter((variant) => variant.id !== id)
-    );
-    toast.success("Variant combination removed!");
+  const updateVariantStock = (
+    combinationIndex: number,
+    stockQuantity: number
+  ) => {
+    setVariants((prev) => ({
+      ...prev,
+      variants: prev.variants.map((variant, index) =>
+        index === combinationIndex ? { ...variant, stockQuantity } : variant
+      ),
+    }));
   };
 
   /**
    * Reset all variants and variant groups
    */
-  const resetAllVariants = () => {
-    setActiveVariantNames([]);
-    setVariantOptions({});
-    setNewOptions({});
-    setSelectedVariantGroup("");
-    setVariants([]);
-    toast.success("All variants reset!");
-  };
+  // const resetAllVariants = () => {
+  //   setVariants({ variantGroups: [], variants: [] });
+  //   setNewOptions({});
+  //   setSelectedVariantGroup("");
+  //   toast.success("All variants reset!");
+  // };
 
   // Get available options for the select (exclude already added ones)
   const availableOptions = VARIANT_GROUP_OPTIONS.filter(
-    (option) => !activeVariantNames.includes(option)
+    (option) => !variants.variantGroups.some((g) => g.name === option)
   );
 
   return (
     <div className="space-y-6">
-      {/* Header with Reset Button */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-medium">Product Variants</h3>
-          <p className="text-sm text-muted-foreground">
-            Create variant groups and combinations with individual stock
-            quantities
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={resetAllVariants}
-          className="flex items-center gap-1 text-destructive"
-        >
-          <RefreshCcw className="h-4 w-4" />
-          Reset All
-        </Button>
-      </div>
-
       {/* Add Variant Group - Select Dropdown */}
       <div className="flex space-x-2">
         <Select
@@ -235,16 +248,16 @@ const HierarchicalVariantBuilder = ({
       </div>
 
       {/* Active Variant Groups */}
-      {activeVariantNames.map((variantName) => (
-        <Card key={variantName} className="border">
+      {variants.variantGroups.map((group) => (
+        <Card key={group.name} className="border">
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-center">
-              <h4 className="text-md font-medium">{variantName}</h4>
+              <h4 className="text-md font-medium">{group.name}</h4>
               <Button
                 variant="ghost"
                 size="sm"
                 className="text-destructive h-8 w-8 p-0"
-                onClick={() => removeVariantGroup(variantName)}
+                onClick={() => removeVariantGroup(group.name)}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -253,21 +266,18 @@ const HierarchicalVariantBuilder = ({
             {/* Add Option Input */}
             <div className="flex space-x-2">
               <Input
-                placeholder={`Add option for ${variantName}`}
-                value={newOptions[variantName] || ""}
+                placeholder={`Add option for ${group.name}`}
+                value={newOptions[group.name] || ""}
                 onChange={(e) =>
-                  setNewOptions({
-                    ...newOptions,
-                    [variantName]: e.target.value,
-                  })
+                  setNewOptions({ ...newOptions, [group.name]: e.target.value })
                 }
-                onKeyDown={(e) => e.key === "Enter" && addOption(variantName)}
+                onKeyDown={(e) => e.key === "Enter" && addOption(group.name)}
                 className="flex-1"
               />
               <Button
                 type="button"
-                onClick={() => addOption(variantName)}
-                disabled={!newOptions[variantName]?.trim()}
+                onClick={() => addOption(group.name)}
+                disabled={!newOptions[group.name]?.trim()}
               >
                 Add Option
               </Button>
@@ -275,7 +285,7 @@ const HierarchicalVariantBuilder = ({
 
             {/* Display Options */}
             <div className="flex flex-wrap gap-2">
-              {(variantOptions[variantName] || []).map((option) => (
+              {group.values.map((option) => (
                 <span
                   key={option}
                   className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground flex items-center gap-2 text-sm"
@@ -283,7 +293,7 @@ const HierarchicalVariantBuilder = ({
                   {option}
                   <button
                     className="text-destructive hover:text-destructive/80 ml-1"
-                    onClick={() => removeOption(variantName, option)}
+                    onClick={() => removeOption(group.name, option)}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -294,27 +304,26 @@ const HierarchicalVariantBuilder = ({
         </Card>
       ))}
 
-      {/* Variant Combinations Table - Shows Live */}
-      {variants.length > 0 && (
+      {/* Variant Combinations Table */}
+      {variants.variants.length > 0 && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h4 className="text-lg font-medium">
-              Variant Combinations ({variants.length})
+              Variant Combinations ({variants.variants.length})
             </h4>
           </div>
 
           <div className="space-y-3">
-            {variants.map((variant) => (
-              <Card key={variant.id} className="border">
+            {variants.variants.map((variant, index) => (
+              <Card key={index} className="border">
                 <CardContent className="p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     {/* Variant Display */}
                     <div className="md:col-span-2">
                       <div className="font-medium text-sm">
-                        {variant.group}: {variant.label}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Value: {variant.value}
+                        {variant.combination
+                          .map((c) => `${c.name}: ${c.value}`)
+                          .join(", ")}
                       </div>
                     </div>
 
@@ -326,28 +335,15 @@ const HierarchicalVariantBuilder = ({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={variant.stock}
+                        value={variant.stockQuantity}
                         onChange={(e) =>
-                          updateVariant(
-                            variant.id,
-                            "stock",
+                          updateVariantStock(
+                            index,
                             parseInt(e.target.value) || 0
                           )
                         }
                         className="w-full"
                       />
-                    </div>
-
-                    {/* Remove Button */}
-                    <div className="md:col-span-1 flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeVariantCombination(variant.id)}
-                        className="text-destructive h-8 w-8 p-0"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -361,12 +357,17 @@ const HierarchicalVariantBuilder = ({
             <div className="grid grid-cols-2 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Total Variants:</span>
-                <span className="font-medium ml-2">{variants.length}</span>
+                <span className="font-medium ml-2">
+                  {variants.variants.length}
+                </span>
               </div>
               <div>
                 <span className="text-muted-foreground">Total Stock:</span>
                 <span className="font-medium ml-2">
-                  {variants.reduce((sum, v) => sum + (v.stock || 0), 0)}
+                  {variants.variants.reduce(
+                    (sum, v) => sum + (v.stockQuantity || 0),
+                    0
+                  )}
                 </span>
               </div>
             </div>

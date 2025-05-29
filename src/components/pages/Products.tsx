@@ -1,135 +1,184 @@
 "use client";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { Search, Plus, MoreHorizontal, Trash, Edit, Eye } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Eye, Plus } from "lucide-react";
+import DataTable, { Column } from "@/components/DataTable";
+import { Product } from "@/types/schemas";
+import { apiClient } from "@/utils/api";
 import Link from "next/link";
+import { Button } from "../ui/button";
 
-type Product = {
-  id: string;
-  name: string;
-  category: string;
-  price: string;
-  stock: number;
-  status: "in-stock" | "low-stock" | "out-of-stock";
-};
+const Products: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const [searchValue, setSearchValue] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-const Products = () => {
-  // Mock product data
-  const [products] = useState<Product[]>([
-    {
-      id: "PRD-001",
-      name: "Wireless Headphones Pro",
-      category: "Electronics",
-      price: "$249.99",
-      stock: 125,
-      status: "in-stock",
-    },
-    {
-      id: "PRD-002",
-      name: 'Ultra HD Smart TV 55"',
-      category: "Electronics",
-      price: "$899.99",
-      stock: 42,
-      status: "in-stock",
-    },
-    {
-      id: "PRD-003",
-      name: "Premium Coffee Machine",
-      category: "Home Appliances",
-      price: "$349.99",
-      stock: 8,
-      status: "low-stock",
-    },
-    {
-      id: "PRD-004",
-      name: "Ergonomic Office Chair",
-      category: "Furniture",
-      price: "$299.99",
-      stock: 0,
-      status: "out-of-stock",
-    },
-    {
-      id: "PRD-005",
-      name: "Professional DSLR Camera",
-      category: "Photography",
-      price: "$1,299.99",
-      stock: 15,
-      status: "in-stock",
-    },
-    {
-      id: "PRD-006",
-      name: "Smartphone X Pro",
-      category: "Electronics",
-      price: "$999.99",
-      stock: 3,
-      status: "low-stock",
-    },
-    {
-      id: "PRD-007",
-      name: "Mechanical Keyboard",
-      category: "Computer Accessories",
-      price: "$149.99",
-      stock: 78,
-      status: "in-stock",
-    },
-    {
-      id: "PRD-008",
-      name: "Fitness Smartwatch",
-      category: "Wearables",
-      price: "$199.99",
-      stock: 32,
-      status: "in-stock",
-    },
-  ]);
-
-  const getStockBadge = (status: Product["status"]) => {
-    switch (status) {
-      case "in-stock":
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-            In Stock
-          </Badge>
-        );
-      case "low-stock":
-        return (
-          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
-            Low Stock
-          </Badge>
-        );
-      case "out-of-stock":
-        return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-200">
-            Out of Stock
-          </Badge>
-        );
-      default:
-        return null;
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.getProducts({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchValue,
+        category: categoryFilter,
+        status: statusFilter,
+      });
+      setProducts(response.data);
+      setPagination(response.pagination);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchProducts();
+  }, [pagination.page, searchValue, categoryFilter, statusFilter]);
+
+  const columns: Column<Product>[] = [
+    {
+      key: "id",
+      label: "Product ID",
+      render: (value) => (
+        <span className="font-mono text-xs text-gray-600">{value}</span>
+      ),
+    },
+    {
+      key: "name",
+      label: "Product Name",
+      sortable: true,
+      render: (value, product) => (
+        <div>
+          <div className="font-medium text-gray-900">{value}</div>
+          <div className="text-xs text-gray-500">{product.title}</div>
+        </div>
+      ),
+    },
+    {
+      key: "category.name",
+      label: "Category",
+      render: (value) => (
+        <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "stockQuantity",
+      label: "Stock",
+      render: (value, product) => (
+        <div className="text-sm">
+          <div className="font-medium">{value}</div>
+          <div className="text-gray-500 text-xs">
+            of {product.totalQuantity}
+          </div>
+          {product.variants.length > 0 && (
+            <div className="text-blue-500 text-xs">
+              {product.variants.length} variants
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "basePrice",
+      label: "Base Price",
+      render: (value, product) => (
+        <div className="text-sm">
+          <div className="font-medium">${value.toFixed(2)}</div>
+          {product.pricing.length > 0 && (
+            <div className="text-gray-500 text-xs">
+              ${Math.min(...product.pricing.map((p) => p.price)).toFixed(2)} - $
+              {Math.max(...product.pricing.map((p) => p.price)).toFixed(2)}
+            </div>
+          )}
+          {product.discount && (
+            <div className="text-red-500 text-xs">
+              -{product.discount.percentage}% off
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value) => (
+        <span
+          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+            value === "active"
+              ? "bg-green-100 text-green-800"
+              : value === "inactive"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
+          {value.replace("_", " ")}
+        </span>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Created",
+      render: (value) => new Date(value).toLocaleDateString(),
+      sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_, product) => (
+        <Link
+          href={`/products/${product._id}`}
+          className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <Eye className="w-4 h-4 mr-1" />
+          View Details
+        </Link>
+      ),
+    },
+  ];
+
+  const filters = (
+    <>
+      <select
+        value={categoryFilter}
+        onChange={(e) => setCategoryFilter(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="">All Categories</option>
+        <option value="smartphones">Smartphones</option>
+        <option value="laptops">Laptops</option>
+        <option value="sneakers">Sneakers</option>
+        <option value="fiction-books">Fiction Books</option>
+        <option value="garden-tools">Garden Tools</option>
+      </select>
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="out_of_stock">Out of Stock</option>
+      </select>
+    </>
+  );
+
   return (
     <div>
-      <div className="mb-6 flex flex-col sm:flex-row justify-between gap-4">
-        <div className="flex items-center w-full max-w-md relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input placeholder="Search products..." className="pl-10" />
+      <div className="flex justify-between items-center">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+          <p className="text-gray-600">Manage your product catalog</p>
         </div>
         <Link href="/products/add-product" className="cursor-pointer">
           <Button className="flex items-center gap-1">
@@ -138,60 +187,20 @@ const Products = () => {
           </Button>
         </Link>
       </div>
-
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.id}</TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.price}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
-                  <TableCell>{getStockBadge(product.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <DataTable
+        data={products}
+        columns={columns}
+        searchValue={searchValue}
+        onSearch={setSearchValue}
+        searchPlaceholder="Search by product name or title..."
+        filters={filters}
+        pagination={{
+          currentPage: pagination.page,
+          totalPages: pagination.totalPages,
+          onPageChange: (page) => setPagination((prev) => ({ ...prev, page })),
+        }}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
