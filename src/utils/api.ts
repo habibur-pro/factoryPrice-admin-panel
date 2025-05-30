@@ -1,19 +1,20 @@
+import { productApi } from "@/redux/api/productApi";
+import { store } from "@/redux/store";
 import {
-  User,
-  Product,
-  Order,
-  PaginationResponse,
-  Variant,
-  Subcategory,
   Discount,
+  Order,
   OrderItem,
+  PaginationResponse,
   Payment,
+  Product,
   ShippingAddress,
-  CartVariant,
+  Subcategory,
+  User,
+  Variant,
 } from "@/types/schemas";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1/products";
 
 // Demo data
 const demoSubcategories: Subcategory[] = [
@@ -375,9 +376,22 @@ class ApiClient {
       status?: string;
     } = {}
   ): Promise<PaginationResponse<Product>> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    let filteredProducts = [...demoProducts];
+    let filteredProducts: Product[] = [];
+    try {
+      const result = await store.dispatch(
+        productApi.endpoints.getAllProduct.initiate({})
+      );
+      console.log("result from api.ts", result);
+      if ("data" in result) {
+        filteredProducts = [...result?.data?.data];
+      } else if ("error" in result) {
+        console.error("Failed to fetch products:", result.error);
+        throw new Error("Fetch failed");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      throw error;
+    }
 
     // Apply search filter
     if (params.search) {
@@ -390,11 +404,12 @@ class ApiClient {
     }
 
     // Apply category filter
-    if (params.category) {
+    if (params?.category) {
       filteredProducts = filteredProducts.filter(
         (product) =>
           product.category.slug === params.category ||
-          product.category.name.toLowerCase() === params.category.toLowerCase()
+          product.category.name.toLowerCase() ===
+            params?.category?.toLowerCase()
       );
     }
 
@@ -421,14 +436,22 @@ class ApiClient {
     };
   }
 
-  async getProduct(id: string): Promise<Product> {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    const product = demoProducts.find((product) => product._id === id);
-    if (!product) {
-      throw new Error("Product not found");
+  async getProduct(slug: string) {
+    try {
+      const result = await store.dispatch(
+        productApi.endpoints.getSingleProduct.initiate(slug)
+      );
+      console.log("sign product from api.ts", result);
+      if ("data" in result) {
+        return result?.data?.data;
+      } else if ("error" in result) {
+        console.error("Failed to fetch products:", result.error);
+        throw new Error("Fetch failed");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      throw error;
     }
-    return product;
   }
 
   // Orders API

@@ -1,18 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  ArrowUp,
-  Package as PackageIcon,
-  Tag,
-  DollarSign,
-  Palette,
-  Hash,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Product } from "@/types/schemas";
 import { apiClient } from "@/utils/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useParams } from "next/navigation";
+import {
+  ArrowUp,
+  DollarSign,
+  Hash,
+  Package as PackageIcon,
+  Palette,
+  Tag,
+} from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -98,14 +98,14 @@ const ProductDetails: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <Link
-          href="/admin/products"
+          href="/products"
           className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-2"
         >
           <ArrowUp className="w-4 h-4 mr-1 rotate-[270deg]" />
           Back to Products
         </Link>
         <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
-        <p className="text-gray-600">{product.title}</p>
+        <p className="text-gray-600">{product.description}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -150,7 +150,7 @@ const ProductDetails: React.FC = () => {
                     Category
                   </label>
                   <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
-                    {product.category.name}
+                    {product.category.categoryName}
                   </span>
                 </div>
                 <div>

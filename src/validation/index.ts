@@ -9,6 +9,7 @@ export const productSchema = z.object({
     .number()
     .positive({ message: "minOrderQuantity must be positive" }),
   description: z.string().min(1, { message: "Description is required" }),
+
   isActive: z.boolean().default(false),
 });
 export type ProductFormValues = z.infer<typeof productSchema>;
