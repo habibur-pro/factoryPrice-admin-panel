@@ -1,9 +1,4 @@
 "use client";
-import { useState } from "react";
-import { useForm, FormProvider, FieldValues } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import BasicInfo from "@/components/BasicInfo";
 import ProductMedia from "@/components/ProductMedia";
 import PromotionsSection from "@/components/PromotionsSection";
@@ -14,7 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Separator } from "@/components/ui/separator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,24 +20,42 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
-import SpecificationsSection from "./SpecificationsSection";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useAddProductMutation } from "@/redux/api/productApi";
 import { ProductFormValues, productSchema } from "@/validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import ProductVariants from "./ProductVariants";
+import SpecificationsSection from "./SpecificationsSection";
+interface SizeQuantity {
+  size: string;
+  quantity: string;
+}
 
+interface ColorVariant {
+  color: string;
+  sizes: SizeQuantity[];
+}
 const AddProduct = () => {
   const router = useRouter();
+  const [addProductMutation] = useAddProductMutation();
+  const [totalQuantity, setTotalQuantity] = useState(0);
   const [images, setImages] = useState<File[]>([]);
-  const [variants, setVariants] = useState<any[]>([]);
+  const [variants, setVariants] = useState<ColorVariant[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [specs, setSpecs] = useState<
     { group: string; key: string; value: string }[]
   >([]);
-  const [pricing, setPricing] = useState<{ quantity: number; price: number }[]>(
-    [{ quantity: 1, price: 0 }]
-  );
+  const [pricing, setPricing] = useState<
+    { minQuantity: number; maxQuantity: number; price: number }[]
+  >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
   const [saving, setSaving] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
 
   const methods = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -53,12 +65,15 @@ const AddProduct = () => {
       category: "",
       subcategory: "",
       description: "",
-      basePrice: 0,
       isActive: false,
+      minOrderQuantity: 10,
+      totalQuantity: 0, 
     },
   });
-
+  const { errors } = methods.formState;
+  console.log(errors);
   const onSubmit = async (data: FieldValues) => {
+    console.log("call");
     if (tags?.length === 0) {
       toast.error("Tags is required.");
       return;
@@ -81,21 +96,26 @@ const AddProduct = () => {
       return;
     }
     try {
-      console.log("Form Data:", {
+      const formData = new FormData();
+      
+      const productData = {
         ...data,
-        images,
         variants,
         tags,
         specs,
         pricing,
+        totalQuantity,
+      };
+      console.log("product data", productData);
+      formData.append("data", JSON.stringify(productData));
+      images.forEach((image) => {
+        formData.append("productImage", image);
       });
+      console.log(formData);
       setSaving(true);
+      await addProductMutation(formData).unwrap();
       toast.success("Product saved successfully!");
-
-      // Navigate back to products page after successful save
-      // setTimeout(() => {
-      //   router.push("/dashboard/products");
-      // }, 2000);
+      router.push("/products");
     } catch (error) {
       toast.error("Failed to save product");
       console.error(error);
@@ -104,19 +124,19 @@ const AddProduct = () => {
     }
   };
 
-  const saveAsDraft = () => {
-    const formData = methods.getValues();
-    console.log("Draft saved:", {
-      ...formData,
-      images,
-      variants,
-      tags,
-      specs,
-      pricing,
-      status: "draft",
-    });
-    toast.success("Draft saved successfully");
-  };
+  // const saveAsDraft = () => {
+  //   const formData = methods.getValues();
+  //   console.log("Draft saved:", {
+  //     ...formData,
+  //     images,
+  //     variants,
+  //     tags,
+  //     specs,
+  //     pricing,
+  //     status: "draft",
+  //   });
+  //   toast.success("Draft saved successfully");
+  // };
 
   const handleCancel = () => {
     // Check if there's unsaved data before showing the confirmation dialog
@@ -176,9 +196,9 @@ const AddProduct = () => {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Button variant="outline" type="button" onClick={saveAsDraft}>
+              {/* <Button variant="outline" type="button" onClick={saveAsDraft}>
                 Save as Draft
-              </Button>
+              </Button> */}
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Product"}
               </Button>
@@ -222,6 +242,7 @@ const AddProduct = () => {
                     <ProductVariants
                       variants={variants}
                       setVariants={setVariants}
+                      setTotalQuantity={setTotalQuantity}
                     />
                   </AccordionContent>
                 </AccordionItem>
@@ -238,14 +259,14 @@ const AddProduct = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem
+                {/* <AccordionItem
                   value="seo"
                   className="border rounded-lg p-1 mt-4"
                 >
                   <AccordionTrigger className="px-4">
                     SEO & Description
                   </AccordionTrigger>
-                </AccordionItem>
+                </AccordionItem> */}
 
                 <AccordionItem
                   value="promotions"

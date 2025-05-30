@@ -1,7 +1,7 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const BASE_URL = "/subcategory";
+const BASE_URL = "/subcategories";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -21,7 +21,7 @@ export const authApi = baseApi.injectEndpoints({
         url: `${BASE_URL}/getAll`,
         method: "GET",
       }),
-      providesTags:[tagTypes.SUBCATEGORY]
+      providesTags: [tagTypes.SUBCATEGORY],
     }),
   }),
 });

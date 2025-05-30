@@ -3,6 +3,7 @@ export enum tagTypes {
   AUTH = "auth",
   CATEGORY = "category",
   SUBCATEGORY = "subcategory",
+  PRODUCT = "product",
 }
 
 // Automatically derive the list from the enum

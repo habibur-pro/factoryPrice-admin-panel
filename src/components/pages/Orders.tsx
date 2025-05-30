@@ -1,199 +1,203 @@
 "use client";
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Search, Filter } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Eye } from "lucide-react";
+import DataTable, { Column } from "@/components/DataTable";
+import { Order } from "@/types/schemas";
+import { apiClient } from "@/utils/api";
+import Link from "next/link";
 
-type OrderStatus =
-  | "pending"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
+const Orders: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const [statusFilter, setStatusFilter] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-type Order = {
-  id: string;
-  customer: string;
-  date: string;
-  amount: string;
-  items: number;
-  status: OrderStatus;
-};
-
-const Orders = () => {
-  // Mock order data
-  const [orders] = useState<Order[]>([
-    {
-      id: "ORD-5312",
-      customer: "Apple Inc.",
-      date: "May 10, 2025",
-      amount: "$12,500.00",
-      items: 12,
-      status: "delivered",
-    },
-    {
-      id: "ORD-4217",
-      customer: "Microsoft Corp.",
-      date: "May 09, 2025",
-      amount: "$8,750.00",
-      items: 8,
-      status: "shipped",
-    },
-    {
-      id: "ORD-3185",
-      customer: "Amazon.com Inc.",
-      date: "May 08, 2025",
-      amount: "$6,320.00",
-      items: 5,
-      status: "processing",
-    },
-    {
-      id: "ORD-2951",
-      customer: "Tesla Motors",
-      date: "May 07, 2025",
-      amount: "$4,800.00",
-      items: 4,
-      status: "pending",
-    },
-    {
-      id: "ORD-2741",
-      customer: "Google LLC",
-      date: "May 07, 2025",
-      amount: "$5,600.00",
-      items: 6,
-      status: "shipped",
-    },
-    {
-      id: "ORD-2532",
-      customer: "Facebook Inc.",
-      date: "May 06, 2025",
-      amount: "$3,900.00",
-      items: 3,
-      status: "delivered",
-    },
-    {
-      id: "ORD-2175",
-      customer: "Intel Corp.",
-      date: "May 05, 2025",
-      amount: "$7,300.00",
-      items: 7,
-      status: "processing",
-    },
-    {
-      id: "ORD-1823",
-      customer: "Meta Platforms",
-      date: "May 04, 2025",
-      amount: "$3,200.00",
-      items: 2,
-      status: "cancelled",
-    },
-  ]);
-
-  const statusColors: Record<OrderStatus, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    processing: "bg-blue-100 text-blue-800",
-    shipped: "bg-purple-100 text-purple-800",
-    delivered: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
+  const fetchOrders = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.getOrders({
+        page: pagination.page,
+        limit: pagination.limit,
+        status: statusFilter,
+      });
+      setOrders(response.data);
+      setPagination(response.pagination);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return (
-    <div title="Orders">
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex items-center w-full max-w-md relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input placeholder="Search orders..." className="pl-10" />
-          </div>
-          <div className="flex items-center gap-2">
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="shipped">Shipped</SelectItem>
-                <SelectItem value="delivered">Delivered</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span>More Filters</span>
-            </Button>
+  useEffect(() => {
+    fetchOrders();
+  }, [pagination.page, statusFilter]);
+
+  const columns: Column<Order>[] = [
+    {
+      key: "id",
+      label: "Order ID",
+      render: (value) => (
+        <span className="font-mono text-xs text-gray-600">{value}</span>
+      ),
+    },
+    {
+      key: "orderName",
+      label: "Order Name",
+      sortable: true,
+      render: (value, order) => (
+        <div>
+          <div className="font-medium text-gray-900">{value}</div>
+          <div className="text-xs text-gray-500">
+            {order.items.length} item{order.items.length !== 1 ? "s" : ""}
           </div>
         </div>
+      ),
+    },
+    {
+      key: "user",
+      label: "Customer",
+      render: (value, order) => (
+        <div className="text-sm">
+          <div className="font-medium text-gray-900">
+            {value ? `${value.firstName} ${value.lastName}` : "N/A"}
+          </div>
+          <div className="text-gray-500 text-xs">
+            {value?.email || order.userId}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "total",
+      label: "Total Amount",
+      render: (value, order) => (
+        <div className="text-sm">
+          <div className="font-medium text-gray-900">${value.toFixed(2)}</div>
+          <div className="text-gray-500 text-xs">
+            Subtotal: ${order.subtotal.toFixed(2)}
+          </div>
+          {order.discount > 0 && (
+            <div className="text-red-500 text-xs">
+              Discount: -${order.discount.toFixed(2)}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Order Status",
+      render: (value) => (
+        <span
+          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+            value === "delivered"
+              ? "bg-green-100 text-green-800"
+              : value === "shipped"
+              ? "bg-blue-100 text-blue-800"
+              : value === "cancelled"
+              ? "bg-red-100 text-red-800"
+              : value === "processing"
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "paymentStatus",
+      label: "Payment",
+      render: (value, order) => (
+        <div className="text-sm">
+          <span
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+              value === "completed"
+                ? "bg-green-100 text-green-800"
+                : value === "failed"
+                ? "bg-red-100 text-red-800"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
+            {value}
+          </span>
+          {order.payment && (
+            <div className="text-gray-500 text-xs mt-1">
+              {order.payment.method}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Order Date",
+      render: (value) => (
+        <div className="text-sm">
+          <div>{new Date(value).toLocaleDateString()}</div>
+          <div className="text-gray-500 text-xs">
+            {new Date(value).toLocaleTimeString()}
+          </div>
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_, order) => (
+        <Link
+          href={`/orders/${order._id}`}
+          className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <Eye className="w-4 h-4 mr-1" />
+          View Details
+        </Link>
+      ),
+    },
+  ];
+
+  const filters = (
+    <>
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </>
+  );
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <p className="text-gray-600">Manage customer orders and track status</p>
       </div>
 
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
-                  <TableCell>{order.date}</TableCell>
-                  <TableCell>{order.items} items</TableCell>
-                  <TableCell>{order.amount}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={statusColors[order.status]}
-                    >
-                      {order.status.charAt(0).toUpperCase() +
-                        order.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Select defaultValue="view">
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Actions" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="view">View Details</SelectItem>
-                        <SelectItem value="edit">Update Status</SelectItem>
-                        <SelectItem value="invoice">
-                          Generate Invoice
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <DataTable
+        data={orders}
+        columns={columns}
+        filters={filters}
+        pagination={{
+          currentPage: pagination.page,
+          totalPages: pagination.totalPages,
+          onPageChange: (page) => setPagination((prev) => ({ ...prev, page })),
+        }}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
