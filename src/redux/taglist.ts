@@ -4,6 +4,7 @@ export enum tagTypes {
   CATEGORY = "category",
   SUBCATEGORY = "subcategory",
   PRODUCT = "product",
+  ORDER = "order",
 }
 
 // Automatically derive the list from the enum

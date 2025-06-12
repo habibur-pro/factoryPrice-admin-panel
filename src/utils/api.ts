@@ -490,12 +490,7 @@ class ApiClient {
 
     return {
       data: filteredOrders.slice(start, end),
-      pagination: {
-        page,
-        limit,
-        total: filteredOrders.length,
-        totalPages: Math.ceil(filteredOrders.length / limit),
-      },
+       
     };
   }
 }

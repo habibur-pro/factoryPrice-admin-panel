@@ -11,30 +11,14 @@ import { Order } from "@/types/schemas";
 import { apiClient } from "@/utils/api";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useGetOrderQuery } from "@/redux/api/orderApi";
 
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchOrder = async () => {
-      if (!id) return;
-
-      try {
-        setIsLoading(true);
-        const orderData = await apiClient.getOrder(id);
-        setOrder(orderData);
-      } catch (error) {
-        console.error("Failed to fetch order:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOrder();
-  }, [id]);
-
+  // const [order, setOrder] = useState<Order | null>(null);
+  const { data: orderRes, isLoading } = useGetOrderQuery(id, { skip: !id });
+  const order = orderRes?.data;
+  console.log(order);
   if (isLoading) {
     return (
       <div className="animate-pulse">
@@ -166,12 +150,13 @@ const OrderDetails: React.FC = () => {
                     <tr key={item._id}>
                       <td className="px-6 py-4">
                         <div>
-                          <div className="font-medium text-gray-900">
-                            {item.product?.name || "Product Name"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {item.id}
-                          </div>
+                          <Link
+                            href={`/products/${item.productSlug}`}
+                            className="font-medium text-blue-700 block"
+                          >
+                            {item?.productName}
+                          </Link>
+                          ID: {item.productId}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -242,6 +227,17 @@ const OrderDetails: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                      User ID
+                    </label>
+                    <Link
+                      href={`/customers/${order.user.id}`}
+                      className="text-sm text-blue-600"
+                    >
+                      {order.user.id || ""}
+                    </Link>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Phone
                     </label>
                     <p className="text-sm text-gray-900">
@@ -254,6 +250,14 @@ const OrderDetails: React.FC = () => {
                     </label>
                     <p className="text-sm text-gray-900">
                       {order.user.country || "Not provided"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Company
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {order.user.company || ""}
                     </p>
                   </div>
                 </div>
@@ -313,7 +317,7 @@ const OrderDetails: React.FC = () => {
                 <h2 className="text-lg font-semibold">Payment Information</h2>
               </div>
             </div>
-            <div className="p-6 space-y-3">
+            <div className="p-6 space-y-3 grid grid-cols-1 lg:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Payment ID
@@ -342,10 +346,18 @@ const OrderDetails: React.FC = () => {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Payment Geteway
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {order.payment.paymentGateway || ""}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Payment Method
                     </label>
                     <p className="text-sm text-gray-900">
-                      {order.payment.method}
+                      {order.payment.paymentMethod}
                     </p>
                   </div>
                   {order.payment.transactionId && (

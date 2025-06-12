@@ -3,40 +3,38 @@ import React, { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
 import DataTable, { Column } from "@/components/DataTable";
 import { Order } from "@/types/schemas";
-import { apiClient } from "@/utils/api";
 import Link from "next/link";
+import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
 
 const Orders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 20,
     total: 0,
     totalPages: 0,
   });
   const [statusFilter, setStatusFilter] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchOrders = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.getOrders({
-        page: pagination.page,
-        limit: pagination.limit,
-        status: statusFilter,
-      });
-      setOrders(response.data);
-      setPagination(response.pagination);
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [searchId, setSearchId] = useState("");
+  const { data: OrderRes, isLoading } = useGetAllOrdersQuery(
+    {
+      page: pagination.page,
+      limit: pagination.limit,
+      status: statusFilter,
+      id: searchId.trim(),
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+  const orders: Order[] = OrderRes?.data?.data;
 
   useEffect(() => {
-    fetchOrders();
-  }, [pagination.page, statusFilter]);
+    if (OrderRes?.data?.pagination) {
+      setPagination(OrderRes.data.pagination);
+    }
+  }, [OrderRes]);
+
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [statusFilter]);
 
   const columns: Column<Order>[] = [
     {
@@ -153,7 +151,7 @@ const Orders: React.FC = () => {
       label: "Actions",
       render: (_, order) => (
         <Link
-          href={`/orders/${order._id}`}
+          href={`/orders/${order.id}`}
           className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           <Eye className="w-4 h-4 mr-1" />
@@ -191,6 +189,8 @@ const Orders: React.FC = () => {
         data={orders}
         columns={columns}
         filters={filters}
+        searchValue={searchId}
+        onSearch={(value) => setSearchId(value)}
         pagination={{
           currentPage: pagination.page,
           totalPages: pagination.totalPages,

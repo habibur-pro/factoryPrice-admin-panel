@@ -111,7 +111,7 @@ function DataTable<T extends Record<string, any>>({
                           getValue(item, column.key as string),
                           item
                         )
-                      : getValue(item, column.key as string)}
+                      : String(getValue(item, column.key as string) ?? "")}
                   </td>
                 ))}
               </tr>
@@ -141,7 +141,10 @@ function DataTable<T extends Record<string, any>>({
                 onClick={() =>
                   pagination.onPageChange(pagination.currentPage + 1)
                 }
-                disabled={pagination.currentPage === pagination.totalPages}
+                disabled={
+                  pagination.totalPages == 0 ||
+                  pagination.currentPage === pagination.totalPages
+                }
                 className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
               >
                 Next
