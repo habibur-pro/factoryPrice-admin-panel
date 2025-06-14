@@ -5,8 +5,11 @@ import DataTable, { Column } from "@/components/DataTable";
 import { Order } from "@/types/schemas";
 import Link from "next/link";
 import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const Orders: React.FC = () => {
+  const router = useRouter();
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -180,9 +183,21 @@ const Orders: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-        <p className="text-gray-600">Manage customer orders and track status</p>
+      <div className="flex justify-between items-center">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+          <p className="text-gray-600">
+            Manage customer orders and track status
+          </p>
+        </div>
+        <div className="mb-6">
+          <Button
+            className="cursor-pointer"
+            onClick={() => router.push("/orders/create-order")}
+          >
+            Create Custom Order
+          </Button>
+        </div>
       </div>
 
       <DataTable

@@ -27,7 +27,19 @@ export const orderApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.ORDER],
     }),
+    placeCustomOrder: build.mutation({
+      query: (data: any) => ({
+        url: `${BASE_URL}/place-custom-order`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.ORDER],
+    }),
   }),
 });
 
-export const { useGetAllOrdersQuery, useGetOrderQuery } = orderApi;
+export const {
+  useGetAllOrdersQuery,
+  useGetOrderQuery,
+  usePlaceCustomOrderMutation,
+} = orderApi;

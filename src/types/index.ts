@@ -50,10 +50,13 @@ export interface ICategory {
 }
 export interface IVariant {
   id: string;
-  group: string;
-  label: string;
-  value: string;
-  stockQuantity: number;
+  color: string;
+  sizes: [
+    {
+      size: string;
+      quantity: number;
+    }
+  ];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,17 +64,23 @@ export interface IVariant {
 export interface IProduct {
   id: string;
   name: string;
+  sku: string;
   title: string;
   description?: string;
   slug?: string;
   category: ICategory;
   variants: Array<IVariant>;
+  specs: Array<{
+    group: string;
+    key: string;
+    value: string;
+  }>;
   basePrice: number;
   pricing: Array<{ minQuantity: number; maxQuantity: number; price: number }>;
   totalQuantity: number;
   stockQuantity: number;
   minOrderQuantity: number;
-  images?: Array<string>;
+  images: Array<string>;
   discountId?: string;
   discount?: IDiscount;
   status: ProductStatus;
@@ -91,3 +100,49 @@ export interface IDiscount {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface IUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+  country: string;
+  companyName: string;
+  address: string;
+  status: "active" | "inactive";
+  role: IRole;
+  photo?: string;
+  isEmailVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IRole {
+  id: string;
+  roleName: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IShippingAddress {
+  id: string;
+  userId: string;
+  user: IUser;
+  country: string;
+  fullName: string;
+  phoneNumber: string;
+  dialCode: string;
+  streetAddress: string;
+  apartment: string;
+  state: string;
+  city: string;
+  postalCode: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ICountry = {
+  countryName: string;
+  code: string;
+  dialCode: string;
+};

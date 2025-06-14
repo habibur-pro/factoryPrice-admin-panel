@@ -32,7 +32,19 @@ export const productApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.PRODUCT],
     }),
+    searchProduct: build.query({
+      query: (key?: any) => ({
+        url: `${BASE_URL}/search-products`,
+        method: "GET",
+        params: { key },
+      }),
+      providesTags: [tagTypes.PRODUCT],
+    }),
   }),
 });
 
-export const { useAddProductMutation, useGetAllProductQuery } = productApi;
+export const {
+  useAddProductMutation,
+  useGetAllProductQuery,
+  useSearchProductQuery,
+} = productApi;
