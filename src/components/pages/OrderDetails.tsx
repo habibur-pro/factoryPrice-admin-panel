@@ -1,24 +1,99 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ArrowUp,
   Package,
   User as UserIcon,
   CreditCard,
   MapPin,
+  PackageCheck,
+  ListChecks,
 } from "lucide-react";
-import { Order } from "@/types/schemas";
-import { apiClient } from "@/utils/api";
+
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useGetOrderQuery } from "@/redux/api/orderApi";
+import {
+  useGetOrderQuery,
+  useGetTimeLinesQuery,
+  useUpdateOrderMutation,
+  useUpdatePaymentMutation,
+} from "@/redux/api/orderApi";
+import { IOrder, IOrderTimeline } from "@/types";
+import { OrderStatus, PaymentStatus } from "@/enum";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { toast } from "sonner";
 
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [updateOrder] = useUpdateOrderMutation();
+  const [updatePayment] = useUpdatePaymentMutation();
   // const [order, setOrder] = useState<Order | null>(null);
   const { data: orderRes, isLoading } = useGetOrderQuery(id, { skip: !id });
-  const order = orderRes?.data;
-  console.log(order);
+  const order: IOrder = orderRes?.data;
+  const { data: timelineRes } = useGetTimeLinesQuery(order?.id, {
+    skip: !order?.id,
+  });
+  const timelines = timelineRes?.data;
+  const [orderStatus, setOrderStatus] = useState("processing");
+  const [notes, setNotes] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<string>(
+    order?.paymentStatus || "unpaid"
+  );
+  const [transactionId, setTransactionId] = useState("");
+  const [paymentDetails, setPaymentDetails] = useState("");
+  const handleUpdateOrder = async () => {
+    const data = {
+      id: order.id,
+      payload: {
+        status: orderStatus,
+        note: notes,
+      },
+    };
+    try {
+      await updateOrder(data).unwrap();
+      toast.success("order updated successfully");
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || error?.message || "something went wrong"
+      );
+    }
+  };
+
+  const handleUpdatePayment = async () => {
+    // console.log("Updating payment:", {
+    //   orderId: order.id,
+    //   paymentStatus,
+    //   refundAmount,
+    // });
+    const data = {
+      id: order.id,
+      payload: {
+        status: paymentStatus,
+        transactionId,
+        details: paymentDetails,
+      },
+    };
+    try {
+      await updatePayment(data).unwrap();
+      toast.success("payment updated successfully");
+    } catch (error: any) {
+      console.log(error);
+      toast.error(
+        error?.data?.message || error?.message || "something went wrong"
+      );
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="animate-pulse">
@@ -100,9 +175,9 @@ const OrderDetails: React.FC = () => {
             </span>
             <span
               className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-                order.paymentStatus === "completed"
+                order.paymentStatus === PaymentStatus.paid
                   ? "bg-green-100 text-green-800"
-                  : order.paymentStatus === "failed"
+                  : order.paymentStatus === PaymentStatus.unpaid
                   ? "bg-red-100 text-red-800"
                   : "bg-yellow-100 text-yellow-800"
               }`}
@@ -147,7 +222,7 @@ const OrderDetails: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {order.items.map((item) => (
-                    <tr key={item._id}>
+                    <tr key={item.id}>
                       <td className="px-6 py-4">
                         <div>
                           <Link
@@ -257,7 +332,7 @@ const OrderDetails: React.FC = () => {
                       Company
                     </label>
                     <p className="text-sm text-gray-900">
-                      {order.user.company || ""}
+                      {order.user.companyName || ""}
                     </p>
                   </div>
                 </div>
@@ -268,6 +343,112 @@ const OrderDetails: React.FC = () => {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+          {/* order management  */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b">
+              <div className="flex items-center">
+                <PackageCheck className="w-5 h-5 mr-2 text-gray-400" />
+                <h2 className="text-lg font-semibold">Order Management</h2>
+              </div>
+            </div>
+            <div className="space-y-4 p-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Order Status
+                  </label>
+                  <Select value={orderStatus} onValueChange={setOrderStatus}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="shipped">Shipped</SelectItem>
+                      <SelectItem value="delivered">Delivered</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                      <SelectItem value="refunded">Refunded</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Internal Notes
+                </label>
+                <Textarea
+                  placeholder="Add internal notes about this order..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+
+              <Button onClick={handleUpdateOrder} className="w-full">
+                Update Order
+              </Button>
+            </div>
+          </div>
+
+          {/* Payment Management */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b">
+              <div className="flex items-center">
+                <CreditCard className="w-5 h-5 mr-2 text-gray-400" />
+                <h2 className="text-lg font-semibold">Payment Management</h2>
+              </div>
+            </div>
+            <div className="space-y-4 p-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Payment Status
+                  </label>
+                  <Select
+                    value={paymentStatus}
+                    onValueChange={setPaymentStatus}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select payment status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="unpaid">Unpaid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Transaction Id (optional)
+                  </label>
+                  <Input
+                    placeholder="Enter transaction id"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Details
+                </label>
+                <Textarea
+                  placeholder="add a details..."
+                  value={paymentDetails}
+                  onChange={(e) => setPaymentDetails(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+              <Button
+                onClick={handleUpdatePayment}
+                className="w-full hover:bg-primary hover:text-white"
+                variant="outline"
+              >
+                Update Payment
+              </Button>
             </div>
           </div>
         </div>
@@ -332,9 +513,9 @@ const OrderDetails: React.FC = () => {
                 </label>
                 <span
                   className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    order.paymentStatus === "completed"
+                    order.paymentStatus === PaymentStatus.paid
                       ? "bg-green-100 text-green-800"
-                      : order.paymentStatus === "failed"
+                      : order.paymentStatus === PaymentStatus.unpaid
                       ? "bg-red-100 text-red-800"
                       : "bg-yellow-100 text-yellow-800"
                   }`}
@@ -386,16 +567,81 @@ const OrderDetails: React.FC = () => {
               </div>
               <div className="p-6">
                 <div className="text-sm text-gray-700 space-y-1">
-                  <p>{order.shippingAddress.street}</p>
-                  <p>
-                    {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
-                    {order.shippingAddress.postalCode}
-                  </p>
-                  <p>{order.shippingAddress.country}</p>
+                  <div className="text-sm space-y-1">
+                    <p>
+                      {order.shippingAddress.apartment &&
+                        `${order.shippingAddress.apartment},`}{" "}
+                      {order.shippingAddress.streetAddress}
+                    </p>
+                    <p>
+                      {order.shippingAddress.city},{" "}
+                      {order.shippingAddress.state}{" "}
+                      {order.shippingAddress.postalCode}
+                    </p>
+                    <p>{order.shippingAddress.country}</p>
+
+                    {/* <p className="text-sm  text-gray-600">
+                      <span
+                        className={cn({
+                          hidden: !order.shippingAddress.apartment,
+                        })}
+                      >
+                        {order.shippingAddress.apartment},{" "}
+                      </span>
+                      {order.shippingAddress.streetAddress},{" "}
+                      {order.shippingAddress.city},{" "}
+                      {order.shippingAddress.state}{" "}
+                      {order.shippingAddress.postalCode}{" "}
+                      {order.shippingAddress.country}
+                    </p> */}
+                  </div>
                 </div>
               </div>
             </div>
           )}
+
+          {/* Order Timeline */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b">
+              <div className="flex items-center">
+                <ListChecks className="w-5 h-5 mr-2 text-gray-400" />
+                <h2 className="text-lg font-semibold">Order Timeline</h2>
+              </div>
+            </div>
+
+            <div className="space-y-4 p-6">
+              {timelines?.length > 0 &&
+                timelines.map((item: IOrderTimeline, index: number) => (
+                  <div key={index} className="flex items-start  gap-3">
+                    <div
+                      className={`w-3 h-3 rounded-full mt-1  ${
+                        !item.isCurrent
+                          ? "bg-primary"
+                          : order?.status == OrderStatus.Delivered
+                          ? "bg-primary"
+                          : "bg-green-500 animate-ping"
+                      }`}
+                    />
+                    <div className="flex-1">
+                      <p
+                        className={`text-sm font-medium ${
+                          item.status === "pending"
+                            ? "text-muted-foreground"
+                            : ""
+                        }`}
+                      >
+                        {item.status}
+                      </p>
+                      {item.createdAt && (
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(item.createdAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

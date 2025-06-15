@@ -6,6 +6,7 @@ export enum tagTypes {
   PRODUCT = "product",
   ORDER = "order",
   ADDRESSES = "addresses",
+  TIMELINE = "timeline",
 }
 
 // Automatically derive the list from the enum

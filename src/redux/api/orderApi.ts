@@ -35,6 +35,29 @@ export const orderApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.ORDER],
     }),
+    updateOrder: build.mutation({
+      query: (data: any) => ({
+        url: `${BASE_URL}/${data.id}/update-order`,
+        method: "POST",
+        body: data.payload,
+      }),
+      invalidatesTags: [tagTypes.ORDER],
+    }),
+    updatePayment: build.mutation({
+      query: (data: any) => ({
+        url: `${BASE_URL}/${data.id}/update-payment`,
+        method: "POST",
+        body: data.payload,
+      }),
+      invalidatesTags: [tagTypes.ORDER, tagTypes.TIMELINE],
+    }),
+    getTimeLines: build.query({
+      query: (orderId: string) => ({
+        url: `${BASE_URL}/${orderId}/timeline`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.TIMELINE],
+    }),
   }),
 });
 
@@ -42,4 +65,7 @@ export const {
   useGetAllOrdersQuery,
   useGetOrderQuery,
   usePlaceCustomOrderMutation,
+  useUpdateOrderMutation,
+  useUpdatePaymentMutation,
+  useGetTimeLinesQuery,
 } = orderApi;

@@ -1,12 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Eye } from "lucide-react";
 import DataTable, { Column } from "@/components/DataTable";
 import { Order } from "@/types/schemas";
-import Link from "next/link";
 import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const Orders: React.FC = () => {
   const router = useRouter();
@@ -153,13 +158,31 @@ const Orders: React.FC = () => {
       key: "actions",
       label: "Actions",
       render: (_, order) => (
-        <Link
-          href={`/orders/${order.id}`}
-          className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        // <Link
+        //   href={`/orders/${order.id}`}
+        //   className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        // >
+        //   <Eye className="w-4 h-4 mr-1" />
+        //   View Details
+        // </Link>
+        <Select
+          onValueChange={(value) => {
+            if (value === "view") {
+              router.push(`/orders/${order.id}`);
+            }
+          }}
+          defaultValue="select"
         >
-          <Eye className="w-4 h-4 mr-1" />
-          View Details
-        </Link>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Actions" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="select">Select</SelectItem>
+            <SelectItem value="view">View Details</SelectItem>n 
+            <SelectItem value="edit">Update Status</SelectItem>
+            <SelectItem value="invoice">Generate Invoice</SelectItem>
+          </SelectContent>
+        </Select>
       ),
     },
   ];

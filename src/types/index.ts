@@ -1,4 +1,9 @@
-import { DiscountStatus, ProductStatus } from "@/enum";
+import {
+  DiscountStatus,
+  OrderStatus,
+  PaymentStatus,
+  ProductStatus,
+} from "@/enum";
 
 export interface IDiscount {
   id: string;
@@ -146,3 +151,90 @@ export type ICountry = {
   code: string;
   dialCode: string;
 };
+export interface IOrder {
+  id: string;
+  orderName: string;
+  userId: string;
+  user: IUser;
+  subtotal: number;
+  discount: number;
+  shippingCharge: number;
+  total: number;
+  items: Array<IOrderItem>;
+  status: OrderStatus;
+  paymentId: string;
+  payment: IPayment;
+  paymentStatus: PaymentStatus;
+  shippingAddressId: string;
+  shippingAddress: IShippingAddress;
+  totalQuantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IOrderItem {
+  id: string;
+  productId: string;
+  product: IProduct;
+  productName: string;
+  productSlug: string;
+  itemVariants: Array<ICartVariant>;
+  totalQuantity: number;
+  perUnitPrice: number;
+  totalPrice: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IPayment {
+  id: string;
+  orderId: string;
+  order: IOrder;
+  userId: string;
+  user: IUser;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+  transactionId: string;
+  paymentGateway: string;
+  description: string;
+  refImage: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IShippingAddress {
+  id: string;
+  userId: string;
+  user: IUser;
+  country: string;
+  fullName: string;
+  phoneNumber: string;
+  dialCode: string;
+  streetAddress: string;
+  apartment: string;
+  state: string;
+  city: string;
+  postalCode: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface ICartVariant {
+  color: string;
+  sizes: [
+    {
+      size: string;
+      quantity: string;
+    }
+  ];
+}
+export interface IOrderTimeline {
+  id: string;
+  orderId: string;
+  order: IOrder;
+  status: string;
+  note: string;
+  isCurrent: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
