@@ -7,6 +7,8 @@ export enum tagTypes {
   ORDER = "order",
   ADDRESSES = "addresses",
   TIMELINE = "timeline",
+  CHAT = "chat",
+  REPORT = "report",
 }
 
 // Automatically derive the list from the enum

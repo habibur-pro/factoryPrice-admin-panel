@@ -1,7 +1,7 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const BASE_URL = "/orders";
+const ENDPOINT = "/orders";
 
 export const orderApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -13,7 +13,7 @@ export const orderApi = baseApi.injectEndpoints({
         status?: string;
         id?: string;
       }) => ({
-        url: `${BASE_URL}`,
+        url: `${ENDPOINT}`,
         method: "GET",
         params,
       }),
@@ -22,14 +22,14 @@ export const orderApi = baseApi.injectEndpoints({
     // get single order
     getOrder: build.query({
       query: (id: string) => ({
-        url: `${BASE_URL}/${id}`,
+        url: `${ENDPOINT}/${id}`,
         method: "GET",
       }),
       providesTags: [tagTypes.ORDER],
     }),
     placeCustomOrder: build.mutation({
       query: (data: any) => ({
-        url: `${BASE_URL}/place-custom-order`,
+        url: `${ENDPOINT}/place-custom-order`,
         method: "POST",
         body: data,
       }),
@@ -37,7 +37,7 @@ export const orderApi = baseApi.injectEndpoints({
     }),
     updateOrder: build.mutation({
       query: (data: any) => ({
-        url: `${BASE_URL}/${data.id}/update-order`,
+        url: `${ENDPOINT}/${data.id}/update-order`,
         method: "POST",
         body: data.payload,
       }),
@@ -45,7 +45,7 @@ export const orderApi = baseApi.injectEndpoints({
     }),
     updatePayment: build.mutation({
       query: (data: any) => ({
-        url: `${BASE_URL}/${data.id}/update-payment`,
+        url: `${ENDPOINT}/${data.id}/update-payment`,
         method: "POST",
         body: data.payload,
       }),
@@ -53,7 +53,7 @@ export const orderApi = baseApi.injectEndpoints({
     }),
     getTimeLines: build.query({
       query: (orderId: string) => ({
-        url: `${BASE_URL}/${orderId}/timeline`,
+        url: `${ENDPOINT}/${orderId}/timeline`,
         method: "GET",
       }),
       providesTags: [tagTypes.TIMELINE],

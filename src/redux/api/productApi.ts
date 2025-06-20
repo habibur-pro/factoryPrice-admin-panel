@@ -1,14 +1,14 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const BASE_URL = "/products";
+const ENDPOINT = "/products";
 
 export const productApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     // user sign-up api endpoint
     addProduct: build.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/add-product`,
+        url: `${ENDPOINT}/add-product`,
         method: "POST",
         body: data,
       }),
@@ -18,7 +18,7 @@ export const productApi = baseApi.injectEndpoints({
     // get all categories
     getAllProduct: build.query({
       query: () => ({
-        url: `${BASE_URL}`,
+        url: `${ENDPOINT}`,
         method: "GET",
       }),
       providesTags: [tagTypes.PRODUCT],
@@ -27,14 +27,14 @@ export const productApi = baseApi.injectEndpoints({
     // get all categories
     getSingleProduct: build.query({
       query: (slug: string) => ({
-        url: `${BASE_URL}/${slug}`,
+        url: `${ENDPOINT}/${slug}`,
         method: "GET",
       }),
       providesTags: [tagTypes.PRODUCT],
     }),
     searchProduct: build.query({
       query: (key?: any) => ({
-        url: `${BASE_URL}/search-products`,
+        url: `${ENDPOINT}/search-products`,
         method: "GET",
         params: { key },
       }),

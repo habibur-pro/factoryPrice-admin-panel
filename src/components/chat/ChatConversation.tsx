@@ -9,8 +9,76 @@ import ChatImage from "./ChatImage";
 import ChatFileComponent from "./ChatFile";
 import MessageReply from "./MessageReplay";
 import Image from "next/image";
-
+// import { useGetChatQuery } from "@/redux/api/chatApi";
+import { IChatSession } from "@/types";
+const chats = [
+  {
+    _id: "6854e74bb28c023e15292685",
+    sessionId: "A0DFC556",
+    senderId: "7FAEAB5B",
+    sender: "68202829ea3d63746d5f4446",
+    receiverId: "B9E8D39D",
+    receiver: "6854208248cb62e350d11faf",
+    content: "Hello World!",
+    files: [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
+    ],
+    replyTo: null,
+    replies: [
+      {
+        _id: "685556d8613d31b9746148a8",
+        sessionId: "A0DFC556",
+        senderId: "7FAEAB5B",
+        sender: {
+          isEmailVerified: false,
+          companyName: null,
+          address: null,
+          _id: "68202829ea3d63746d5f4446",
+          firstName: "Shofikul",
+          lastName: "Islam",
+          phoneNumber: "01974297726",
+          email: "shofik@gmail.com",
+          password:
+            "$2b$12$OZDj.6TO/8/Q9bif6XJSleAkPPcX/elZPdoCPAm2GxtvZKpef/dN.",
+          country: "Bangladesh",
+          status: "active",
+          role: "68202819ea3d63746d5f4442",
+          id: "7FAEAB5B",
+          createdAt: "2025-05-11T04:31:38.042Z",
+          updatedAt: "2025-05-11T04:31:38.042Z",
+          __v: 0,
+          photo:
+            "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg",
+        },
+        receiverId: "B9E8D39D",
+        receiver: "6854208248cb62e350d11faf",
+        content: "Hello replay",
+        files: [],
+        replyTo: "6854e74bb28c023e15292685",
+        product: null,
+        id: "F3C1F210",
+        createdAt: "2025-06-20T12:40:56.863Z",
+        updatedAt: "2025-06-20T12:40:56.863Z",
+        __v: 0,
+      },
+    ],
+    product: {
+      productId: "88D6DA3E",
+      productName: "Men's Cotton T-Shirt",
+      image:
+        "https://res.cloudinary.com/dbqoevq35/image/upload/v1748510459/uploads/dcob5sjqgewkerghisay.jpg",
+      slug: "men's-cotton-t-shirt",
+      sku: "T-58",
+    },
+    id: "9A111E9B",
+    createdAt: "2025-06-20T04:44:59.685Z",
+    updatedAt: "2025-06-20T04:44:59.685Z",
+    __v: 0,
+  },
+];
 interface ChatConversationProps {
+  selectedSessionId: string;
+  selectedSession: IChatSession;
   user: ChatUser;
   onSendMessage: (
     userId: string,
@@ -20,7 +88,12 @@ interface ChatConversationProps {
   ) => void;
 }
 
-const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
+const ChatConversation = ({
+  user,
+  selectedSessionId,
+  selectedSession,
+  onSendMessage,
+}: ChatConversationProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -30,7 +103,9 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
     sender: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  // const { data: chatRes } = useGetChatQuery(selectedSessionId);
+  // const chats = chatRes?.data;
+  console.log("chats", chats);
   const handleSend = () => {
     if (newMessage.trim() || attachedFiles.length > 0) {
       onSendMessage(user.id, newMessage, attachedFiles, replyingTo?.id);
@@ -38,6 +113,7 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
       setAttachedFiles([]);
       setReplyingTo(null);
     }
+
     // Ensure scroll to bottom after new message renders
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -83,22 +159,25 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
       <div className="flex items-center gap-3 p-4 border-b bg-gray-50">
         <div className="relative">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarImage
+              src={selectedSession.user.photo}
+              alt={selectedSession.user.firstName}
+            />
             <AvatarFallback>
-              {user.name
+              {selectedSession.user.firstName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          {user.isOnline && (
+          {selectedSession.id && (
             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
           )}
         </div>
         <div>
-          <h3 className="font-medium">{user.name}</h3>
+          <h3 className="font-medium">{selectedSession.user.firstName}</h3>
           <p className="text-sm text-gray-500">
-            {user.isOnline ? "Online" : "Offline"}
+            {selectedSession.id ? "Online" : "Offline"}
           </p>
         </div>
       </div>
@@ -106,7 +185,7 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
       {/* Messages */}
       <ScrollArea className="flex-1 p-4  max-h-[60vh]">
         <div className="space-y-4  ">
-          {user.messages.map((message) => (
+          {chats.map((message) => (
             <div key={message.id} className="space-y-3">
               {/* Product preview if exists */}
               {message.product && (
@@ -118,14 +197,14 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                   <div className="flex gap-3">
                     <Image
                       src={message.product.image}
-                      alt={message.product.name}
+                      alt={message.product.productName}
                       width={100}
                       height={100}
                       className="w-12 h-12 object-cover rounded border"
                     />
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">
-                        {message.product.name}
+                        {message.product.productName}
                       </h4>
                       <p className="text-xs text-gray-500">
                         SKU: {message.product.sku}
@@ -136,11 +215,7 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                         asChild
                         className="mt-1 h-6 text-xs"
                       >
-                        <a
-                          href={message.product.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <a href={``} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-2 w-2 mr-1" />
                           View
                         </a>
@@ -153,9 +228,12 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
               {/* Customer message */}
               <div className="flex gap-3 group">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage
+                    src={selectedSession.user.photo}
+                    alt={selectedSession.user.firstName}
+                  />
                   <AvatarFallback>
-                    {user.name
+                    {selectedSession.user.firstName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
@@ -163,21 +241,21 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                 </Avatar>
                 <div className="flex-1">
                   <div className="bg-gray-100 rounded-lg p-3 max-w-md relative">
-                    {message.replyTo && (
+                    {/* {message.replyTo && (
                       <div className="bg-gray-200 p-2 rounded mb-2 text-xs">
                         <p className="text-gray-600 truncate">
                           ↳ {message.replyTo.content}
                         </p>
                       </div>
-                    )}
+                    )} */}
                     <p className="text-sm">{message.content}</p>
-                    {message.files && message.files.length > 0 && (
+                    {/* {message.files && message.files.length > 0 && (
                       <div className="mt-2 space-y-2">
                         {message.files.map((file, index) =>
                           renderFileAttachment(file, index)
                         )}
                       </div>
-                    )}
+                    )} */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -190,7 +268,7 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                     </Button>
                   </div>
                   <span className="text-xs text-gray-500 mt-1 block">
-                    {message.timestamp}
+                    {message.createdAt}
                   </span>
                 </div>
               </div>
@@ -201,10 +279,11 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                   <div
                     key={index}
                     className={`flex gap-3 group ${
-                      reply.sender === "admin" ? "justify-end" : ""
+                      // reply.sender. === "admin" ? "justify-end" : ""
+                      "justify-end"
                     }`}
                   >
-                    {reply.sender === "customer" && (
+                    {/* {reply.sender === "customer" && (
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user.avatar} alt={user.name} />
                         <AvatarFallback>
@@ -214,16 +293,17 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                    )}
+                    )} */}
                     <div className="flex-1 max-w-md">
                       <div
-                        className={`rounded-lg p-3 relative ${
-                          reply.sender === "admin"
-                            ? "bg-blue-500 text-white ml-auto"
-                            : "bg-gray-100"
-                        }`}
+                        className="rounded-lg p-3 relative bg-blue-500 text-white ml-auto "
+                        // className={`rounded-lg p-3 relative ${
+                        //   reply.sender === "admin"
+                        //     ? "bg-blue-500 text-white ml-auto"
+                        //     : "bg-gray-100"
+                        // }`}
                       >
-                        {reply.replyTo && (
+                        {/* {reply.replyTo && (
                           <div
                             className={`p-2 rounded mb-2 text-xs ${
                               reply.sender === "admin"
@@ -241,49 +321,30 @@ const ChatConversation = ({ user, onSendMessage }: ChatConversationProps) => {
                               ↳ {reply.replyTo.content}
                             </p>
                           </div>
-                        )}
+                        )} */}
                         <p className="text-sm">{reply.content}</p>
-                        {reply.files && reply.files.length > 0 && (
+                        {reply.files && reply.files?.length > 0 && (
                           <div className="mt-2 space-y-2">
                             {reply.files.map((file, fileIndex) =>
                               renderFileAttachment(file, fileIndex)
                             )}
                           </div>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            handleReply(
-                              `${message.id}-reply-${index}`,
-                              reply.content,
-                              reply.sender === "admin" ? "Admin" : user.name
-                            )
-                          }
-                          className={`opacity-0 group-hover:opacity-100 transition-opacity absolute ${
-                            reply.sender === "admin" ? "-left-8" : "-right-8"
-                          } top-2 h-6 w-6 p-0 ${
-                            reply.sender === "admin"
-                              ? "text-blue-300 hover:text-blue-100"
-                              : ""
-                          }`}
-                        >
-                          <Reply className="h-3 w-3" />
-                        </Button>
                       </div>
                       <span
-                        className={`text-xs text-gray-500 mt-1 block ${
-                          reply.sender === "admin" ? "text-right" : ""
-                        }`}
+                        className={`text-xs text-gray-500 mt-1 block  text-right`}
+                        // className={`text-xs text-gray-500 mt-1 block ${
+                        //   reply.sender === "admin" ? "text-right" : ""
+                        // }`}
                       >
-                        {reply.timestamp}
+                        {/* {reply.timestamp} */}
                       </span>
                     </div>
-                    {reply.sender === "admin" && (
+                    {/* {reply.sender === "admin" && (
                       <Avatar className="h-8 w-8">
                         <AvatarFallback>AD</AvatarFallback>
                       </Avatar>
-                    )}
+                    )} */}
                   </div>
                 ))}
             </div>

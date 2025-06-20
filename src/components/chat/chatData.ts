@@ -23,7 +23,7 @@ export interface ReplyReference {
 export interface ChatReply {
   content: string;
   timestamp: string;
-  sender: "admin" | "customer";
+  sender: string;
   files?: ChatFile[];
   replyTo?: ReplyReference;
 }

@@ -238,3 +238,38 @@ export interface IOrderTimeline {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IChatSession {
+  id: string;
+  socketId: string;
+  productId: string;
+  product: IProduct;
+  userId: string;
+  user: IUser;
+  lastMessage: string;
+  lastMessageTime: Date;
+  unreadCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IReport {
+  sellChart: Array<{
+    sales: number;
+    date: string;
+    orders: number;
+  }>;
+  totalSell: number;
+  recentOrders: Array<IOrder>;
+  totalOrders: number;
+  totalCustomers: number;
+  totalInventoryValue: number;
+  topSellingProducts: Array<{
+    sku: string;
+    slug: string;
+    id: string;
+    totalSold: number;
+    productName: string;
+    stockPercentage: number;
+  }>;
+  recentPayments: Array<IPayment>;
+}
