@@ -1,14 +1,14 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const AUTH_URL = "/auth";
+const ENDPOINT = "/auth";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     // user sign-up api endpoint
     signUp: build.mutation({
       query: (signUpData) => ({
-        url: `${AUTH_URL}/sign-up`,
+        url: `${ENDPOINT}/sign-up`,
         method: "POST",
         body: signUpData,
       }),
@@ -17,7 +17,7 @@ export const authApi = baseApi.injectEndpoints({
     // user sign-in api
     verifySignIn: build.mutation({
       query: (signinData) => ({
-        url: `${AUTH_URL}/verify-sign-in`,
+        url: `${ENDPOINT}/verify-sign-in`,
         method: "POST",
         body: signinData,
       }),

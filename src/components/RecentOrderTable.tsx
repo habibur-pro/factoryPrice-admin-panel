@@ -48,19 +48,6 @@ const RecentOrdersTable = ({ orders, className }: RecentOrdersTableProps) => {
     <div className={`overflow-hidden rounded-lg border bg-card ${className}`}>
       <div className="flex justify-between items-center p-4 border-b">
         <h3 className="font-semibold text-lg">Recent Orders</h3>
-        <Select defaultValue="all">
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Filter Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Orders</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="shipped">Shipped</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       <div className="overflow-x-auto">
         <Table>

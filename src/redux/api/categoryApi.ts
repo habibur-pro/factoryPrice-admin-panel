@@ -1,14 +1,14 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const BASE_URL = "/categories";
+const ENDPOINT = "/categories";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     // user sign-up api endpoint
     addCategory: build.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/create`,
+        url: `${ENDPOINT}/create`,
         method: "POST",
         body: data,
       }),
@@ -18,14 +18,14 @@ export const authApi = baseApi.injectEndpoints({
     // get all categories
     getAllCategory: build.query({
       query: () => ({
-        url: `${BASE_URL}/getAll`,
+        url: `${ENDPOINT}/getAll`,
         method: "GET",
       }),
       providesTags: [tagTypes.CATEGORY],
     }),
     getSubcategory: build.query({
       query: (catName: string) => ({
-        url: `${BASE_URL}/${catName}/subcategories`,
+        url: `${ENDPOINT}/${catName}/subcategories`,
         method: "GET",
       }),
       providesTags: [tagTypes.CATEGORY],
