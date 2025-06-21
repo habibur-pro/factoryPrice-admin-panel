@@ -4,24 +4,35 @@ import { Download, FileText, File } from "lucide-react";
 
 interface ChatFileProps {
   file: {
-    name: string;
+    filename: string;
     size: number;
-    type: string;
+    extension: string;
     url?: string;
   };
   className?: string;
 }
 
 const ChatFile = ({ file, className = "" }: ChatFileProps) => {
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (file.url) {
+    if (!file.url) return;
+
+    try {
+      const response = await fetch(file.url, { mode: "cors" });
+      if (!response.ok) throw new Error("Failed to fetch file");
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
       const link = document.createElement("a");
-      link.href = file.url;
-      link.download = file.name;
+      link.href = blobUrl;
+      link.download = file.filename; // use original name with extension
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl); // clean up
+    } catch (error) {
+      console.error("Download failed:", error);
     }
   };
 
@@ -40,8 +51,9 @@ const ChatFile = ({ file, className = "" }: ChatFileProps) => {
   };
 
   const getFileIcon = () => {
-    if (isPdfFile(file.name)) return <File className="h-4 w-4 text-red-500" />;
-    if (isTextFile(file.name))
+    if (isPdfFile(file.filename))
+      return <File className="h-4 w-4 text-red-500" />;
+    if (isTextFile(file.filename))
       return <FileText className="h-4 w-4 text-blue-500" />;
     return <File className="h-4 w-4 text-gray-500" />;
   };
@@ -61,7 +73,7 @@ const ChatFile = ({ file, className = "" }: ChatFileProps) => {
       <div className="flex-shrink-0">{getFileIcon()}</div>
       <div className="flex-1 min-w-0" onClick={openFile}>
         <p className="text-sm font-medium text-gray-900 truncate">
-          {file.name}
+          {file.filename}
         </p>
         <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
       </div>

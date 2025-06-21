@@ -273,3 +273,30 @@ export interface IReport {
   }>;
   recentPayments: Array<IPayment>;
 }
+
+export interface IChat {
+  id: string;
+  sessionId: string;
+  senderId: string;
+  sender: IUser;
+  receiverId: string;
+  receiver: IUser;
+  content: string;
+  files: Array<{
+    filename: string;
+    extension: string;
+    size: number;
+    url: string;
+  }>;
+  replyTo: string;
+  replies: Array<IChat>;
+  product: IChatProduct;
+  createdAt: Date;
+}
+export interface IChatProduct {
+  productId: string;
+  productName: string;
+  image: string;
+  slug: string;
+  sku: string;
+}
