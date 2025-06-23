@@ -5,7 +5,23 @@ const ENDPOINT = "/users";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    // get all orders
+    getAllUser: build.query({
+      query: (params?: any) => ({
+        url: `${ENDPOINT}`,
+        method: "GET",
+        params,
+      }),
+      providesTags: [tagTypes.USER],
+    }),
+
+    getUserById: build.query({
+      query: (id?: any) => ({
+        url: `${ENDPOINT}/${id}`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.USER],
+    }),
+
     searchUsers: build.query({
       query: (key?: any) => ({
         url: `${ENDPOINT}/search-users`,
@@ -14,7 +30,7 @@ export const userApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.USER],
     }),
-    // get all orders
+
     getAddresses: build.query({
       query: (userId?: any) => ({
         url: `${ENDPOINT}/${userId}/addresses`,
@@ -25,4 +41,9 @@ export const userApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useSearchUsersQuery, useGetAddressesQuery } = userApi;
+export const {
+  useSearchUsersQuery,
+  useGetAddressesQuery,
+  useGetAllUserQuery,
+  useGetUserByIdQuery,
+} = userApi;

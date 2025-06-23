@@ -22,6 +22,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { toast } from "sonner";
+import ImageCard from "../ImageCard";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -556,29 +557,18 @@ const OrderDetails: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Reference Image
                       </label>
-                      <div className="border rounded-lg p-3 bg-gray-50 flex flex-col items-start gap-3">
-                        <img
+                      <div>
+                        <ImageCard
+                          key={1}
                           src={order.payment.refImage}
                           alt="Payment Reference"
-                          className="max-w-full max-h-80 rounded border"
+                          title="Payment Reference"
+                          fileName="payment-reference.jpg"
                         />
-                        <Button
-                          onClick={() => {
-                            const link = document.createElement("a");
-                            link.href = order.payment.refImage;
-                            link.download = "payment-reference.jpg"; // You can name dynamically
-                            link.target = "_blank";
-                            link.click();
-                          }}
-                          variant="outline"
-                        >
-                          Download Image
-                        </Button>
                       </div>
                     </div>
                   )}
                   {/* {order.payment.refImage && <PaymentRefImage src={order.payment.refImage} />} */}
-
                 </>
               )}
             </div>
