@@ -1,15 +1,17 @@
 "use client";
-import { ShoppingCart, Package, Users, Database, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import StatCard from "../StatCard";
-import SalesChart from "../SalesChart";
-import RecentOrdersTable from "../RecentOrderTable";
-import TopSellingProducts from "../TopSellingProducts";
+import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
 import { useGetFullReportQuery } from "@/redux/api/reportApi";
-import LoadingSkeletion from "../LoadingSkeletion";
 import { IReport } from "@/types";
-import Link from "next/link";
+import { Order } from "@/types/schemas";
 import { getSmartTimeAgo } from "@/utils/getSmartTimeAgo";
+import { Calendar, Database, Package, ShoppingCart, Users } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import LoadingSkeletion from "../LoadingSkeletion";
+import RecentOrdersTable from "../RecentOrderTable";
+import SalesChart from "../SalesChart";
+import StatCard from "../StatCard";
 
 // Mock data for recent orders
 const mockOrders = [
@@ -85,6 +87,27 @@ const mockTopProducts = [
 const Dashboard = () => {
   const { data: ReportRes, isLoading } = useGetFullReportQuery("");
   const report: IReport = ReportRes?.data;
+
+    const [pagination, setPagination] = useState({
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+    });
+    const [statusFilter, setStatusFilter] = useState("");
+    const [searchId, setSearchId] = useState("");
+    const { data: OrderRes } = useGetAllOrdersQuery(
+      {
+        page: pagination.page,
+        limit: pagination.limit,
+        status: statusFilter,
+        id: searchId.trim(),
+      },
+      { refetchOnMountOrArgChange: true }
+    );
+    const orders: Order[] = OrderRes?.data?.data;
+
+    console.log("order from dashboard", orders);
   if (isLoading || !report) {
     return (
       <div>
@@ -144,7 +167,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="space-y-4 ">
             {report.recentPayments?.length > 0 &&
-              report.recentPayments.map((payment) => (
+              report.recentPayments?.map((payment) => (
                 <div
                   key={payment.id}
                   className="flex items-center gap-4 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
@@ -175,12 +198,13 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-7 gap-6">
-        <RecentOrdersTable className="xl:col-span-4" orders={mockOrders} />
-        <TopSellingProducts
+      {/* <div className="grid grid-cols-1 xl:grid-cols-7 gap-6"> */}
+      <div className="">
+        <RecentOrdersTable className="xl:col-span-4" orders={orders} />
+        {/* <TopSellingProducts
           className="xl:col-span-3"
           products={mockTopProducts}
-        />
+        /> */}
       </div>
     </div>
   );

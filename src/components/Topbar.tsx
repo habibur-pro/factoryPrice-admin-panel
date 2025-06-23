@@ -1,7 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Bell, MessageCircle, Search, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
@@ -18,9 +18,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { LogOut } from "lucide-react";
+import { Bell, LogOut, MessageCircle, Search, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 import ChatPanel from "./chat/ChatPanel";
 type TopBarProps = {
   title: string;
@@ -29,6 +29,9 @@ type TopBarProps = {
 
 const TopBar = ({ title, className }: TopBarProps) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const session = useSession();
+  const user = session?.data?.user;
+  console.log("user top bar", user);
   return (
     <header
       className={`flex items-center justify-between h-16 px-6 border-b bg-white ${className}`}
@@ -124,10 +127,10 @@ const TopBar = ({ title, className }: TopBarProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className="hidden md:inline-block font-medium text-sm">
-                John Doe
+                {user?.name}
               </span>
             </Button>
           </DropdownMenuTrigger>
@@ -140,7 +143,7 @@ const TopBar = ({ title, className }: TopBarProps) => {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={() => signOut()}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>
