@@ -6,11 +6,11 @@ const ENDPOINT = "/chats";
 export const chatApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     // user sign-up api endpoint
-    send: build.mutation({
-      query: (data) => ({
-        url: `${ENDPOINT}/send`,
+    replay: build.mutation({
+      query: (payload: { chatId: string; data: any }) => ({
+        url: `${ENDPOINT}/${payload.chatId}/replay`,
         method: "POST",
-        body: data,
+        body: payload.data,
       }),
       invalidatesTags: [tagTypes.CHAT],
     }),
@@ -24,4 +24,4 @@ export const chatApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useSendMutation, useGetChatQuery } = chatApi;
+export const { useReplayMutation, useGetChatQuery } = chatApi;
