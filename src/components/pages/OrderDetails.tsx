@@ -1,17 +1,16 @@
 "use client";
-import React, { useState } from "react";
 import {
   ArrowUp,
-  Package,
-  User as UserIcon,
   CreditCard,
-  MapPin,
-  PackageCheck,
   ListChecks,
+  MapPin,
+  Package,
+  PackageCheck,
+  User as UserIcon,
 } from "lucide-react";
+import React, { useState } from "react";
 
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { OrderStatus, PaymentStatus } from "@/enum";
 import {
   useGetOrderQuery,
   useGetTimeLinesQuery,
@@ -19,8 +18,12 @@ import {
   useUpdatePaymentMutation,
 } from "@/redux/api/orderApi";
 import { IOrder, IOrderTimeline } from "@/types";
-import { OrderStatus, PaymentStatus } from "@/enum";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -29,9 +32,6 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { toast } from "sonner";
 
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -551,6 +551,34 @@ const OrderDetails: React.FC = () => {
                       </p>
                     </div>
                   )}
+                  {order.payment.refImage && (
+                    <div className="lg:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reference Image
+                      </label>
+                      <div className="border rounded-lg p-3 bg-gray-50 flex flex-col items-start gap-3">
+                        <img
+                          src={order.payment.refImage}
+                          alt="Payment Reference"
+                          className="max-w-full max-h-80 rounded border"
+                        />
+                        <Button
+                          onClick={() => {
+                            const link = document.createElement("a");
+                            link.href = order.payment.refImage;
+                            link.download = "payment-reference.jpg"; // You can name dynamically
+                            link.target = "_blank";
+                            link.click();
+                          }}
+                          variant="outline"
+                        >
+                          Download Image
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {/* {order.payment.refImage && <PaymentRefImage src={order.payment.refImage} />} */}
+
                 </>
               )}
             </div>

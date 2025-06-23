@@ -1,51 +1,52 @@
 "use client";
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useVerifyAdminSignInMutation } from "@/redux/api/authApi";
+import { signinSchema } from "@/validation/authValidation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FieldValues, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const Signin = () => {
-  const [email, setEmail] = useState("");
-  const router = useRouter();
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+   const {handleSubmit,register} = useForm({
+    resolver: zodResolver(signinSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email === "admin@example.com" && password === "admin123") {
-        toast({
-          title: "Login successful",
-          description: "Welcome back to your admin dashboard",
-          variant: "default",
-        });
-        router.push("/");
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid email or password",
-          variant: "destructive",
-        });
-      }
-    }, 1000);
+  const [verifySignin] = useVerifyAdminSignInMutation();
+
+const onSubmit = async (data: FieldValues) => {
+    try {
+      await verifySignin(data).unwrap();
+      await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        callbackUrl: `/`,
+        redirect: true,
+      });
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || error?.message || "something went wrong!"
+      );
+    }
   };
 
   const toggleShowPassword = () => {
@@ -65,16 +66,14 @@ const Signin = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  {...register("email")}
                 />
               </div>
               <div className="space-y-2">
@@ -84,9 +83,7 @@ const Signin = () => {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    {...register("password")}
                   />
                   <button
                     type="button"
@@ -124,11 +121,11 @@ const Signin = () => {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="border-t p-4 flex justify-center">
+          {/* <CardFooter className="border-t p-4 flex justify-center">
             <p className="text-sm text-center text-muted-foreground">
               Demo credentials: admin@example.com / admin123
             </p>
-          </CardFooter>
+          </CardFooter> */}
         </Card>
       </div>
     </div>

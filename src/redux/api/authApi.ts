@@ -15,9 +15,9 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.AUTH],
     }),
     // user sign-in api
-    verifySignIn: build.mutation({
+    verifyAdminSignIn: build.mutation({
       query: (signinData) => ({
-        url: `${ENDPOINT}/verify-sign-in`,
+        url: `${ENDPOINT}/admin/verify-sign-in`,
         method: "POST",
         body: signinData,
       }),
@@ -55,7 +55,7 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useSignUpMutation,
-  useVerifySignInMutation,
+  useVerifyAdminSignInMutation,
   useChangePasswordMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
