@@ -64,7 +64,6 @@ const ChatPanel = () => {
 
     try {
       await replay(payload).unwrap();
-      setScrollDown(true);
     } catch (error) {
       console.log(error);
     }
