@@ -231,7 +231,7 @@ const ColorVariantBuilder = ({
                   </span>
                   <span className="ml-2">
                     {variant.sizes.reduce(
-                      (total, size) => total + parseInt(size.quantity || "0"),
+                      (total, size) => total + size.quantity,
                       0
                     )}{" "}
                     units
