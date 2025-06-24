@@ -40,6 +40,7 @@ const ChatConversation = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: chatRes } = useGetChatQuery(selectedSession?.id, {
     skip: !selectedSession.id,
+    pollingInterval: 3000,
   });
   const chats: Array<IChat> = chatRes?.data;
   useEffect(() => {
@@ -170,35 +171,62 @@ const ChatConversation = ({
                 )}
 
                 {/* Customer message */}
-                <div className="flex gap-3 group">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={selectedSession.user.photo}
-                      alt={selectedSession.user.firstName}
-                    />
-                    <AvatarFallback>
-                      {selectedSession.user.firstName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="bg-gray-100 rounded-lg p-3 max-w-md relative">
-                      <p className="text-sm">{message.content}</p>
-                      {message.files && message.files.length > 0 && (
-                        <div className="mt-2 space-y-2">
-                          {message.files.map((file) =>
-                            renderFileAttachment(file)
-                          )}
-                        </div>
-                      )}
+                {/* show content  */}
+                {message?.content && (
+                  <div className="flex gap-3 group">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={selectedSession.user.photo}
+                        alt={selectedSession.user.firstName}
+                      />
+                      <AvatarFallback>
+                        {selectedSession.user.firstName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="bg-gray-100 rounded-lg p-3 max-w-md relative">
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                      <span className="text-xs text-gray-500 mt-1 block">
+                        {getSmartTimeAgo(message.createdAt)}
+                      </span>
                     </div>
-                    <span className="text-xs text-gray-500 mt-1 block">
-                      {getSmartTimeAgo(message.createdAt)}
-                    </span>
                   </div>
-                </div>
+                )}
+                {/* show file  */}
+                {message?.files && (
+                  <div className="flex gap-3 group">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={selectedSession.user.photo}
+                        alt={selectedSession.user.firstName}
+                      />
+                      <AvatarFallback>
+                        {selectedSession.user.firstName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="bg-gray-100 rounded-lg p-3 max-w-md relative">
+                        {message.files && message.files.length > 0 && (
+                          <div className="mt-2 space-y-2">
+                            {message.files.map((file) =>
+                              renderFileAttachment(file)
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-500 mt-1 block">
+                        {getSmartTimeAgo(message.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Replies */}
                 {message.replies &&
