@@ -1,6 +1,7 @@
-import { Download, Eye } from 'lucide-react';
-import React, { useState } from 'react';
-import ImageModal from './ImageModal';
+import { Download, Eye } from "lucide-react";
+import React, { useState } from "react";
+import ImageModal from "./ImageModal";
+import Image from "next/image";
 
 interface ImageCardProps {
   src: string;
@@ -9,11 +10,11 @@ interface ImageCardProps {
   fileName?: string;
 }
 
-const ImageCard: React.FC<ImageCardProps> = ({ 
-  src, 
-  alt, 
+const ImageCard: React.FC<ImageCardProps> = ({
+  src,
+  alt,
   title = "Beautiful Image",
-  fileName = "image.jpg"
+  fileName = "image.jpg",
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -22,17 +23,17 @@ const ImageCard: React.FC<ImageCardProps> = ({
       const response = await fetch(src);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error:any) {
-      console.log('Download initiated for:', error.message);
+    } catch (error: any) {
+      console.log("Download initiated for:", error.message);
       // Fallback: open image in new tab
-      window.open(src, '_blank');
+      window.open(src, "_blank");
     }
   };
 
@@ -41,12 +42,14 @@ const ImageCard: React.FC<ImageCardProps> = ({
       <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden">
-          <img
+          <Image
+            height={300}
+            width={300}
             src={src}
             alt={alt}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
-          
+
           {/* Overlay with Buttons */}
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
             {/* View Button */}
@@ -57,7 +60,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
               <Eye size={20} />
               <span>View</span>
             </button>
-            
+
             {/* Download Button */}
             <button
               onClick={handleDownload}
@@ -68,14 +71,16 @@ const ImageCard: React.FC<ImageCardProps> = ({
             </button>
           </div>
         </div>
-        
+
         {/* Card Content */}
         <div className="p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-2">{title}</h3>
-          <p className="text-gray-600 text-sm">Click to view or download this beautiful image</p>
+          <p className="text-gray-600 text-sm">
+            Click to view or download this beautiful image
+          </p>
         </div>
       </div>
-      
+
       {/* Modal */}
       <ImageModal
         isOpen={isModalOpen}

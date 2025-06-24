@@ -1,6 +1,7 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Product } from "@/types/schemas";
+import { IProduct } from "@/types";
+
 import { apiClient } from "@/utils/api";
 import {
   ArrowUp,
@@ -16,7 +17,7 @@ import React, { useEffect, useState } from "react";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<IProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -256,7 +257,7 @@ const ProductDetails: React.FC = () => {
               <CardContent>
                 <div className="space-y-6">
                   {product.variants.map((variant) => (
-                    <div key={variant._id} className="border rounded-lg p-4">
+                    <div key={variant.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-medium text-gray-900">
                           {variant.color}
@@ -343,7 +344,7 @@ const ProductDetails: React.FC = () => {
                   </p>
                 </div>
               )}
-              {product.discount && (
+              {/* {product.discount && (
                 <div className="bg-red-50 p-3 rounded">
                   <label className="block text-sm font-medium text-red-700 mb-1">
                     Active Discount
@@ -356,7 +357,7 @@ const ProductDetails: React.FC = () => {
                     {new Date(product.discount.validUntil).toLocaleDateString()}
                   </p>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
 
@@ -438,7 +439,7 @@ const ProductDetails: React.FC = () => {
                   MongoDB ID
                 </label>
                 <p className="text-xs font-mono text-gray-900 bg-gray-50 p-2 rounded">
-                  {product._id}
+                  {product.id}
                 </p>
               </div>
               <div>
