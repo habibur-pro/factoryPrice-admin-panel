@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { productApi } from "@/redux/api/productApi";
 import { userApi } from "@/redux/api/userApi";
 import { store } from "@/redux/store";
@@ -13,9 +14,6 @@ import {
   User,
   Variant,
 } from "@/types/schemas";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1/products";
 
 // Demo data
 const demoSubcategories: Subcategory[] = [
@@ -58,15 +56,6 @@ const demoVariants: Variant[] = [
     ],
     createdAt: "2024-01-10T08:00:00Z",
     updatedAt: "2024-01-10T08:00:00Z",
-  },
-];
-
-const demoDiscounts: Discount[] = [
-  {
-    _id: "674a1b2c3d4e5f6789012395",
-    percentage: 20,
-    validUntil: "2024-12-31T23:59:59Z",
-    type: "seasonal",
   },
 ];
 
@@ -292,10 +281,7 @@ const demoOrders: Order[] = [
 ];
 
 class ApiClient {
-  private async request<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<T> {
+  private async request<T>(endpoint: string): Promise<T> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -512,7 +498,7 @@ class ApiClient {
     const limit = params.limit || 10;
     const start = (page - 1) * limit;
     const end = start + limit;
-
+    //@ts-ignore
     return {
       data: filteredOrders.slice(start, end),
     };

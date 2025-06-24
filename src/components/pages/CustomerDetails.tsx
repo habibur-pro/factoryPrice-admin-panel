@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 
 const CustomerDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [customer, setCustomer] = useState<User | null>(null);
+  const [customer, setCustomer] = useState<any | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

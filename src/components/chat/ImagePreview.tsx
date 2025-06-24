@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
+import Image from "next/image";
 
 interface ImagePreviewProps {
   src: string;
@@ -49,7 +50,9 @@ const ImagePreview = ({
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <img
+          <Image
+            height={1000}
+            width={1000}
             src={src}
             alt={alt}
             className="w-full h-auto max-h-[90vh] object-contain"

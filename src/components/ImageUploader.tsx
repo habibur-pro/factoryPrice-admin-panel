@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
+import Image from "next/image";
 
 interface ImageUploaderProps {
   onImagesUpdate: (images: string[]) => void;
@@ -131,7 +132,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImagesUpdate }) => {
             {images.map((image, index) => (
               <div key={index} className="relative group">
                 <div className="aspect-square rounded-md overflow-hidden border border-gray-200">
-                  <img
+                  <Image
+                    width={150}
+                    height={150}
                     src={image}
                     alt={`Product image ${index + 1}`}
                     className="w-full h-full object-cover"

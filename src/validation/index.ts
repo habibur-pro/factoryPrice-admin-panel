@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 export const productSchema = z.object({
   name: z.string().min(1, { message: "Product name is required" }),
   sku: z.string().min(1, { message: "SKU is required" }),
@@ -9,7 +10,10 @@ export const productSchema = z.object({
     .number()
     .positive({ message: "minOrderQuantity must be positive" }),
   description: z.string().min(1, { message: "Description is required" }),
-
-  isActive: z.boolean().default(false),
+  totalQuantity: z
+    .number()
+    .min(0, { message: "Total quantity must be non-negative" }),
+  isActive: z.boolean(),
 });
+
 export type ProductFormValues = z.infer<typeof productSchema>;
