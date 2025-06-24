@@ -1,23 +1,23 @@
 import baseApi from "../baseApi";
 import { tagTypes } from "../taglist";
 
-const AUTH_URL = "/auth";
+const ENDPOINT = "/auth";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     // user sign-up api endpoint
     signUp: build.mutation({
       query: (signUpData) => ({
-        url: `${AUTH_URL}/sign-up`,
+        url: `${ENDPOINT}/sign-up`,
         method: "POST",
         body: signUpData,
       }),
       invalidatesTags: [tagTypes.AUTH],
     }),
     // user sign-in api
-    verifySignIn: build.mutation({
+    verifyAdminSignIn: build.mutation({
       query: (signinData) => ({
-        url: `${AUTH_URL}/verify-sign-in`,
+        url: `${ENDPOINT}/admin/verify-sign-in`,
         method: "POST",
         body: signinData,
       }),
@@ -55,7 +55,7 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useSignUpMutation,
-  useVerifySignInMutation,
+  useVerifyAdminSignInMutation,
   useChangePasswordMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,

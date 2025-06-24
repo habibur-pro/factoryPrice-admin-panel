@@ -1,4 +1,5 @@
 import { productApi } from "@/redux/api/productApi";
+import { userApi } from "@/redux/api/userApi";
 import { store } from "@/redux/store";
 import {
   Discount,
@@ -314,7 +315,23 @@ class ApiClient {
   ): Promise<PaginationResponse<User>> {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    let filteredUsers = [...demoUsers];
+    let filteredUsers: User[] = [];
+
+    try {
+      const result = await store.dispatch(
+        userApi.endpoints.getAllUser.initiate({})
+      );
+      console.log("users from api.ts", result);
+      if ("data" in result) {
+        filteredUsers = [...result?.data?.data];
+      } else if ("error" in result) {
+        console.error("Failed to fetch users:", result.error);
+        throw new Error("Fetch failed");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      throw error;
+    }
 
     // Apply search filter
     if (params.search) {
@@ -350,14 +367,22 @@ class ApiClient {
     };
   }
 
-  async getCustomer(id: string): Promise<User> {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    const customer = demoUsers.find((user) => user._id === id);
-    if (!customer) {
-      throw new Error("Customer not found");
+  async getCustomer(id: string): Promise<User | undefined> {
+    try {
+      const result = await store.dispatch(
+        userApi.endpoints.getUserById.initiate(id)
+      );
+      console.log("single user from api.ts", result);
+      if ("data" in result) {
+        return result?.data?.data;
+      } else if ("error" in result) {
+        console.error("Failed to fetch users:", result.error);
+        throw new Error("Fetch failed");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      throw error;
     }
-    return customer;
   }
 
   async getCustomerOrders(id: string): Promise<Order[]> {
@@ -490,12 +515,6 @@ class ApiClient {
 
     return {
       data: filteredOrders.slice(start, end),
-      pagination: {
-        page,
-        limit,
-        total: filteredOrders.length,
-        totalPages: Math.ceil(filteredOrders.length / limit),
-      },
     };
   }
 }

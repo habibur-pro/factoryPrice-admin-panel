@@ -1,42 +1,48 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Eye } from "lucide-react";
 import DataTable, { Column } from "@/components/DataTable";
 import { Order } from "@/types/schemas";
-import { apiClient } from "@/utils/api";
-import Link from "next/link";
+import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const Orders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const router = useRouter();
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 20,
     total: 0,
     totalPages: 0,
   });
   const [statusFilter, setStatusFilter] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchOrders = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.getOrders({
-        page: pagination.page,
-        limit: pagination.limit,
-        status: statusFilter,
-      });
-      setOrders(response.data);
-      setPagination(response.pagination);
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [searchId, setSearchId] = useState("");
+  const { data: OrderRes, isLoading } = useGetAllOrdersQuery(
+    {
+      page: pagination.page,
+      limit: pagination.limit,
+      status: statusFilter,
+      id: searchId.trim(),
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+  const orders: Order[] = OrderRes?.data?.data;
 
   useEffect(() => {
-    fetchOrders();
-  }, [pagination.page, statusFilter]);
+    if (OrderRes?.data?.pagination) {
+      setPagination(OrderRes.data.pagination);
+    }
+  }, [OrderRes]);
+
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [statusFilter]);
 
   const columns: Column<Order>[] = [
     {
@@ -152,13 +158,31 @@ const Orders: React.FC = () => {
       key: "actions",
       label: "Actions",
       render: (_, order) => (
-        <Link
-          href={`/orders/${order._id}`}
-          className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        // <Link
+        //   href={`/orders/${order.id}`}
+        //   className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        // >
+        //   <Eye className="w-4 h-4 mr-1" />
+        //   View Details
+        // </Link>
+        <Select
+          onValueChange={(value) => {
+            if (value === "view") {
+              router.push(`/orders/${order.id}`);
+            }
+          }}
+          defaultValue="select"
         >
-          <Eye className="w-4 h-4 mr-1" />
-          View Details
-        </Link>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Actions" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="select">Select</SelectItem>
+            <SelectItem value="view">View Details</SelectItem>n 
+            <SelectItem value="edit">Update Status</SelectItem>
+            <SelectItem value="invoice">Generate Invoice</SelectItem>
+          </SelectContent>
+        </Select>
       ),
     },
   ];
@@ -182,15 +206,29 @@ const Orders: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-        <p className="text-gray-600">Manage customer orders and track status</p>
+      <div className="flex justify-between items-center">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+          <p className="text-gray-600">
+            Manage customer orders and track status
+          </p>
+        </div>
+        <div className="mb-6">
+          <Button
+            className="cursor-pointer"
+            onClick={() => router.push("/orders/create-order")}
+          >
+            Create Custom Order
+          </Button>
+        </div>
       </div>
 
       <DataTable
         data={orders}
         columns={columns}
         filters={filters}
+        searchValue={searchId}
+        onSearch={(value) => setSearchId(value)}
         pagination={{
           currentPage: pagination.page,
           totalPages: pagination.totalPages,

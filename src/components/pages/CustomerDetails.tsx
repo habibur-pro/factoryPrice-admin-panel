@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { ArrowUp, User as UserIcon, Package, Eye } from "lucide-react";
-import { User, Order } from "@/types/schemas";
+import { Order, User } from "@/types/schemas";
 import { apiClient } from "@/utils/api";
-import { useParams } from "next/navigation";
+import { ArrowUp, User as UserIcon } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 const CustomerDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -175,7 +175,7 @@ const CustomerDetails: React.FC = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-lg shadow">
+        {/* <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b">
             <div className="flex items-center">
               <Package className="w-5 h-5 mr-2 text-gray-400" />
@@ -211,11 +211,11 @@ const CustomerDetails: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Orders List */}
-      <div className="mt-6 bg-white rounded-lg shadow">
+      {/* <div className="mt-6 bg-white rounded-lg shadow">
         <div className="p-6 border-b">
           <h2 className="text-lg font-semibold">Order History</h2>
         </div>
@@ -286,7 +286,7 @@ const CustomerDetails: React.FC = () => {
             <p className="text-gray-500">No orders found</p>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

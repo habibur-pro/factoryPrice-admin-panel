@@ -40,7 +40,7 @@ interface ColorVariant {
   color: string;
   sizes: SizeQuantity[];
 }
-const AddProduct = () => {
+export const AddProduct = () => {
   const router = useRouter();
   const [addProductMutation] = useAddProductMutation();
   const [totalQuantity, setTotalQuantity] = useState(0);
@@ -56,7 +56,6 @@ const AddProduct = () => {
   const [saving, setSaving] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
-
   const methods = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -67,7 +66,7 @@ const AddProduct = () => {
       description: "",
       isActive: false,
       minOrderQuantity: 10,
-      totalQuantity: 0, 
+      totalQuantity: 0,
     },
   });
   const { errors } = methods.formState;
@@ -97,7 +96,7 @@ const AddProduct = () => {
     }
     try {
       const formData = new FormData();
-      
+
       const productData = {
         ...data,
         variants,
@@ -299,5 +298,3 @@ const AddProduct = () => {
     </div>
   );
 };
-
-export default AddProduct;

@@ -7,13 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Order } from "@/types/schemas";
 
 type OrderStatus =
   | "pending"
@@ -22,13 +16,16 @@ type OrderStatus =
   | "delivered"
   | "cancelled";
 
-type Order = {
-  id: string;
-  customer: string;
-  date: string;
-  amount: string;
-  status: OrderStatus;
-};
+// type Order = {
+//   id: string;
+//   customer: string;
+//   date: string;
+//   total: number;
+//   status: OrderStatus;
+//   user?: User;
+//   createdAt: Date;
+//   updatedAt: Date;
+// };
 
 type RecentOrdersTableProps = {
   orders: Order[];
@@ -48,19 +45,6 @@ const RecentOrdersTable = ({ orders, className }: RecentOrdersTableProps) => {
     <div className={`overflow-hidden rounded-lg border bg-card ${className}`}>
       <div className="flex justify-between items-center p-4 border-b">
         <h3 className="font-semibold text-lg">Recent Orders</h3>
-        <Select defaultValue="all">
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Filter Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Orders</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="shipped">Shipped</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       <div className="overflow-x-auto">
         <Table>
@@ -71,16 +55,25 @@ const RecentOrdersTable = ({ orders, className }: RecentOrdersTableProps) => {
               <TableHead>Date</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              {/* <TableHead className="text-right">Actions</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium">{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.date}</TableCell>
-                <TableCell>{order.amount}</TableCell>
+                <TableCell>
+                  {order?.user?.firstName}
+                  {order?.user?.lastName}
+                </TableCell>
+                <TableCell>
+                  {new Date(order?.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                  })}
+                </TableCell>
+                <TableCell>${order.total}</TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -90,7 +83,7 @@ const RecentOrdersTable = ({ orders, className }: RecentOrdersTableProps) => {
                       order.status.slice(1)}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">
+                {/* <TableCell className="text-right">
                   <Select defaultValue="view">
                     <SelectTrigger className="w-[100px]">
                       <SelectValue placeholder="Action" />
@@ -101,7 +94,7 @@ const RecentOrdersTable = ({ orders, className }: RecentOrdersTableProps) => {
                       <SelectItem value="invoice">Invoice</SelectItem>
                     </SelectContent>
                   </Select>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>
