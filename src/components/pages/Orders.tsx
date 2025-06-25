@@ -178,7 +178,7 @@ const Orders: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="select">Select</SelectItem>
-            <SelectItem value="view">View Details</SelectItem>n 
+            <SelectItem value="view">View Details</SelectItem>
             <SelectItem value="edit">Update Status</SelectItem>
             <SelectItem value="invoice">Generate Invoice</SelectItem>
           </SelectContent>
