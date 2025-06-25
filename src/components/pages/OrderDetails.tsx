@@ -568,6 +568,16 @@ const OrderDetails: React.FC = () => {
                       </div>
                     </div>
                   )}
+                  {order.payment.description && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <p className="text-sm font-mono text-gray-600">
+                        {order.payment.description}
+                      </p>
+                    </div>
+                  )}
                   {/* {order.payment.refImage && <PaymentRefImage src={order.payment.refImage} />} */}
                 </>
               )}

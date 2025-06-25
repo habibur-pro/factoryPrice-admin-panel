@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronLeft,
   LogOut,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,8 +30,9 @@ const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Package, label: "Products", path: "/products" },
   { icon: ShoppingCart, label: "Orders", path: "/orders" },
-  { icon: Archive, label: "Inventory", path: "/inventory" },
   { icon: Users, label: "Customers", path: "/customers" },
+  { icon: CreditCard, label: "Payments", path: "/payments" },
+  { icon: Archive, label: "Inventory", path: "/inventory" },
   // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
   // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];

@@ -1,34 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import FacebookProvider from "next-auth/providers/facebook";
-import GithubProvider from "next-auth/providers/github";
-import GoogleProvider from "next-auth/providers/google";
 
 export const authOption: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    }),
-    // LinkedInProvider({
-    //   clientId: process.env.LINKEDIN_CLIENT_ID!,
-    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
-    // }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID as string,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
-      authorization: {
-        params: {
-          scope: "email",
-        },
-      },
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-    }),
-
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
@@ -61,37 +36,6 @@ export const authOption: NextAuthOptions = {
   ],
 
   callbacks: {
-    async signIn({ user, account }) {
-      if (
-        account?.provider === "google" ||
-        account?.provider === "github" ||
-        account?.provider === "facebook"
-      ) {
-        if (user) {
-          try {
-            const baseurl = process.env.NEXT_PUBLIC_API_URL;
-            const res = await fetch(`${baseurl}/auth/auto-sign-in`, {
-              method: "POST",
-              body: JSON.stringify(user),
-              headers: { "Content-Type": "application/json" },
-            });
-            if (!res.ok) {
-              return false;
-            }
-            const result = await res.json();
-            console.log("result google login", result);
-            user.id = result.data.id;
-            user.accessToken = result.data.accessToken;
-            user.name = result.data.name;
-            return true;
-          } catch {
-            return false;
-          }
-        }
-        return false;
-      }
-      return true;
-    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;

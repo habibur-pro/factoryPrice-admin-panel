@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { IOrder } from "@/types";
 import { Order } from "@/types/schemas";
 
 type OrderStatus =
@@ -28,11 +29,11 @@ type OrderStatus =
 // };
 
 type RecentOrdersTableProps = {
-  orders: Order[];
+  orders: IOrder[];
   className?: string;
 };
 
-const statusColors: Record<OrderStatus, string> = {
+const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   processing: "bg-blue-100 text-blue-800",
   shipped: "bg-purple-100 text-purple-800",
