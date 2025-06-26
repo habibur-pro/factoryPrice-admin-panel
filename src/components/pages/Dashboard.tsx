@@ -13,101 +13,9 @@ import RecentOrdersTable from "../RecentOrderTable";
 import SalesChart from "../SalesChart";
 import StatCard from "../StatCard";
 
-// Mock data for recent orders
-const mockOrders = [
-  {
-    id: "ORD-5312",
-    customer: "Apple Inc.",
-    date: "May 10, 2025",
-    amount: "$12,500.00",
-    status: "delivered" as const,
-  },
-  {
-    id: "ORD-4217",
-    customer: "Microsoft Corp.",
-    date: "May 09, 2025",
-    amount: "$8,750.00",
-    status: "shipped" as const,
-  },
-  {
-    id: "ORD-3185",
-    customer: "Amazon.com Inc.",
-    date: "May 08, 2025",
-    amount: "$6,320.00",
-    status: "processing" as const,
-  },
-  {
-    id: "ORD-2951",
-    customer: "Tesla Motors",
-    date: "May 07, 2025",
-    amount: "$4,800.00",
-    status: "pending" as const,
-  },
-  {
-    id: "ORD-1823",
-    customer: "Meta Platforms",
-    date: "May 06, 2025",
-    amount: "$3,200.00",
-    status: "cancelled" as const,
-  },
-];
-
-// Mock data for top selling products
-const mockTopProducts = [
-  {
-    name: "Wireless Headphones Pro",
-    category: "Electronics",
-    sold: 1240,
-    total: 1500,
-    percentage: 83,
-  },
-  {
-    name: 'Ultra HD Smart TV 55"',
-    category: "Electronics",
-    sold: 890,
-    total: 1200,
-    percentage: 74,
-  },
-  {
-    name: "Premium Coffee Machine",
-    category: "Home Appliances",
-    sold: 650,
-    total: 1000,
-    percentage: 65,
-  },
-  {
-    name: "Ergonomic Office Chair",
-    category: "Furniture",
-    sold: 520,
-    total: 800,
-    percentage: 65,
-  },
-];
-
 const Dashboard = () => {
   const { data: ReportRes, isLoading } = useGetFullReportQuery("");
   const report: IReport = ReportRes?.data;
-
-    const [pagination, setPagination] = useState({
-      page: 1,
-      limit: 20,
-      total: 0,
-      totalPages: 0,
-    });
-    const [statusFilter, setStatusFilter] = useState("");
-    const [searchId, setSearchId] = useState("");
-    const { data: OrderRes } = useGetAllOrdersQuery(
-      {
-        page: pagination.page,
-        limit: pagination.limit,
-        status: statusFilter,
-        id: searchId.trim(),
-      },
-      { refetchOnMountOrArgChange: true }
-    );
-    const orders: Order[] = OrderRes?.data?.data;
-
-    console.log("order from dashboard", orders);
   if (isLoading || !report) {
     return (
       <div>
@@ -200,7 +108,12 @@ const Dashboard = () => {
 
       {/* <div className="grid grid-cols-1 xl:grid-cols-7 gap-6"> */}
       <div className="">
-        <RecentOrdersTable className="xl:col-span-4" orders={orders} />
+        {report?.recentOrders?.length > 0 && (
+          <RecentOrdersTable
+            className="xl:col-span-4"
+            orders={report.recentOrders}
+          />
+        )}
         {/* <TopSellingProducts
           className="xl:col-span-3"
           products={mockTopProducts}

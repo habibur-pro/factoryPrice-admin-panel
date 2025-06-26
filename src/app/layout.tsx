@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Factory price || admin panel",
+  title: "Factory price | admin panel",
   description: "Control panel of factory price",
 };
 
@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-       <ReduxProvider>
+        <ReduxProvider>
           <NextAuthProvider>{children}</NextAuthProvider>
         </ReduxProvider>
       </body>

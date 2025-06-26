@@ -5,7 +5,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,7 @@ const Signin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-   const {handleSubmit,register} = useForm({
+  const { handleSubmit, register } = useForm({
     resolver: zodResolver(signinSchema),
     defaultValues: {
       email: "",
@@ -33,9 +33,10 @@ const Signin = () => {
 
   const [verifySignin] = useVerifyAdminSignInMutation();
 
-const onSubmit = async (data: FieldValues) => {
+  const onSubmit = async (data: FieldValues) => {
     try {
-      await verifySignin(data).unwrap();
+      const result = await verifySignin(data).unwrap();
+      console.log("result", result);
       await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -43,6 +44,7 @@ const onSubmit = async (data: FieldValues) => {
         redirect: true,
       });
     } catch (error: any) {
+      console.log(error);
       toast.error(
         error?.data?.message || error?.message || "something went wrong!"
       );
@@ -105,7 +107,7 @@ const onSubmit = async (data: FieldValues) => {
                     id="remember"
                     className="rounded border-gray-300"
                   />
-                  <Label htmlFor="remember" className="text-sm cursor-pointer">
+                  <Label htmlFor="remember" className="text-sm cursor-pointer ">
                     Remember me
                   </Label>
                 </div>

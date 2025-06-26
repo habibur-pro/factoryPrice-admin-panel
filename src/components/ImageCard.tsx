@@ -39,19 +39,19 @@ const ImageCard: React.FC<ImageCardProps> = ({
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+      <div className="group relative max-h-72 border overflow-hidden rounded  bg-white  hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
         {/* Image Container */}
-        <div className="relative aspect-square overflow-hidden">
+        <div className="relative aspect-square overflow-hidden ">
           <Image
             height={300}
             width={300}
             src={src}
             alt={alt}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full  object-contain transition-transform duration-500 group-hover:scale-110"
           />
 
           {/* Overlay with Buttons */}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+          <div className="absolute inset-0 top-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
             {/* View Button */}
             <button
               onClick={() => setIsModalOpen(true)}
