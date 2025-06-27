@@ -259,15 +259,6 @@ export const AddProduct = () => {
                 </AccordionItem>
 
                 {/* <AccordionItem
-                  value="seo"
-                  className="border rounded-lg p-1 mt-4"
-                >
-                  <AccordionTrigger className="px-4">
-                    SEO & Description
-                  </AccordionTrigger>
-                </AccordionItem> */}
-
-                <AccordionItem
                   value="promotions"
                   className="border rounded-lg p-1 mt-4"
                 >
@@ -277,7 +268,7 @@ export const AddProduct = () => {
                   <AccordionContent className="px-4 pt-2">
                     <PromotionsSection />
                   </AccordionContent>
-                </AccordionItem>
+                </AccordionItem> */}
               </Accordion>
             </div>
 
