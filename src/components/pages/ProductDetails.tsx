@@ -11,6 +11,7 @@ import {
   Palette,
   Tag,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -301,14 +302,91 @@ const ProductDetails: React.FC = () => {
                       key={index}
                       className="aspect-square bg-gray-100 rounded-lg overflow-hidden"
                     >
-                      <img
+                      <Image
                         src={image}
+                        height={500}
+                        width={500}
                         alt={`${product.name} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+          {/* specs */}
+          {product.specs && product.specs.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Specifications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {product.specs.map((spec, index) => (
+                  <div
+                    key={`${spec.group} ${index}`}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                  >
+                    {spec.properties.map((prop, i) => (
+                      <div key={`${prop.key} ${i}`}>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">
+                          {prop.key}
+                        </label>
+                        <p className="text-sm text-gray-900 font-mono">
+                          {prop.value}
+                        </p>
+                      </div>
+                    ))}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Product Name
+                      </label>
+                      <p className="text-sm text-gray-900 font-medium">
+                        {product.name}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Slug
+                      </label>
+                      <p className="text-sm text-gray-900 font-mono">
+                        {product.slug}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Category
+                      </label>
+                      <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+                        {product.category.categoryName}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Status
+                      </label>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          product.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : product.status === "inactive"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {product.status}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Created Date
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {new Date(product.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}
