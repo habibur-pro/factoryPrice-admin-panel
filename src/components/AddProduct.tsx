@@ -30,7 +30,7 @@ import { useState } from "react";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import ProductVariants from "./ProductVariants";
-import SpecificationsSection from "./SpecificationsSection";
+import SpecificationsSection, { Specification } from "./SpecificationsSection";
 interface SizeQuantity {
   size: string;
   quantity: string;
@@ -47,9 +47,7 @@ export const AddProduct = () => {
   const [images, setImages] = useState<File[]>([]);
   const [variants, setVariants] = useState<ColorVariant[]>([]);
   const [tags, setTags] = useState<string[]>([]);
-  const [specs, setSpecs] = useState<
-    { group: string; key: string; value: string }[]
-  >([]);
+  const [specs, setSpecs] = useState<Array<Specification>>([]);
   const [pricing, setPricing] = useState<
     { minQuantity: number; maxQuantity: number; price: number }[]
   >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
@@ -96,7 +94,7 @@ export const AddProduct = () => {
     }
     try {
       const formData = new FormData();
-
+      console.log("specs", specs);
       const productData = {
         ...data,
         variants,

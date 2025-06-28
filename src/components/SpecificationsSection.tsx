@@ -11,10 +11,14 @@ import {
 } from "@/components/ui/select";
 import { Plus, FileText, X, RefreshCcw } from "lucide-react";
 
-interface Specification {
-  group: string;
+export interface Property {
   key: string;
   value: string;
+}
+
+export interface Specification {
+  group: string;
+  properties: Property[];
 }
 
 interface SpecificationsSectionProps {
@@ -39,18 +43,38 @@ const SpecificationsSection = ({
   const [specValue, setSpecValue] = useState<string>("");
 
   const addSpec = () => {
-    if (currentGroup && specKey && specValue) {
-      setSpecs([
-        ...specs,
-        { group: currentGroup, key: specKey, value: specValue },
-      ]);
-      setSpecKey("");
-      setSpecValue("");
+    if (!specKey || !specValue || !currentGroup) return;
+
+    const newSpec = { key: specKey, value: specValue };
+    const groupIndex = specs.findIndex((s) => s.group === currentGroup);
+
+    if (groupIndex !== -1) {
+      const updated = [...specs];
+      updated[groupIndex].properties.push(newSpec);
+      setSpecs(updated);
+    } else {
+      setSpecs([...specs, { group: currentGroup, properties: [newSpec] }]);
     }
+
+    setSpecKey("");
+    setSpecValue("");
   };
 
-  const removeSpec = (index: number) => {
-    setSpecs(specs.filter((_, i) => i !== index));
+  const removeSpec = (group: string, key: string, value: string) => {
+    setSpecs((prevSpecs) =>
+      prevSpecs
+        .map((spec) =>
+          spec.group === group
+            ? {
+                ...spec,
+                properties: spec.properties.filter(
+                  (p) => p.key !== key || p.value !== value
+                ),
+              }
+            : spec
+        )
+        .filter((spec) => spec.properties.length > 0)
+    );
   };
 
   const addGroup = () => {
@@ -61,24 +85,11 @@ const SpecificationsSection = ({
     }
   };
 
-  // Reset all specifications
   const resetAllSpecs = () => {
     setSpecs([]);
     setSpecKey("");
     setSpecValue("");
   };
-
-  // Group specs by their group name
-  const groupedSpecs = specs.reduce<Record<string, Specification[]>>(
-    (acc, spec) => {
-      if (!acc[spec.group]) {
-        acc[spec.group] = [];
-      }
-      acc[spec.group].push(spec);
-      return acc;
-    },
-    {}
-  );
 
   return (
     <div className="space-y-6">
@@ -105,6 +116,7 @@ const SpecificationsSection = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Side - Form */}
         <div className="space-y-4">
           <div>
             <Label>Specification Group</Label>
@@ -189,6 +201,7 @@ const SpecificationsSection = ({
           </div>
         </div>
 
+        {/* Right Side - Display Specs */}
         <div className="border rounded-lg p-4">
           <h4 className="font-medium mb-4">Added Specifications</h4>
 
@@ -198,42 +211,34 @@ const SpecificationsSection = ({
             </div>
           ) : (
             <div className="space-y-6">
-              {Object.entries(groupedSpecs).map(([groupName, groupSpecs]) => (
-                <div key={groupName}>
+              {specs.map((specGroup) => (
+                <div key={specGroup.group}>
                   <h5 className="font-medium text-sm mb-2 bg-secondary/50 p-2 rounded">
-                    {groupName}
+                    {specGroup.group}
                   </h5>
                   <div className="space-y-2">
-                    {groupSpecs.map((spec, index) => {
-                      // Find the global index of this spec
-                      const globalIndex = specs.findIndex(
-                        (s) =>
-                          s.group === spec.group &&
-                          s.key === spec.key &&
-                          s.value === spec.value
-                      );
-
-                      return (
-                        <div
-                          key={`${spec.group}-${spec.key}-${index}`}
-                          className="flex justify-between items-center py-1 border-b"
-                        >
-                          <div className="font-medium">{spec.key}:</div>
-                          <div className="flex items-center">
-                            <span>{spec.value}</span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 ml-2 p-0"
-                              onClick={() => removeSpec(globalIndex)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
+                    {specGroup.properties.map((prop, index) => (
+                      <div
+                        key={`${specGroup.group}-${prop.key}-${index}`}
+                        className="flex justify-between items-center py-1 border-b"
+                      >
+                        <div className="font-medium">{prop.key}:</div>
+                        <div className="flex items-center">
+                          <span>{prop.value}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 ml-2 p-0"
+                            onClick={() =>
+                              removeSpec(specGroup.group, prop.key, prop.value)
+                            }
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}

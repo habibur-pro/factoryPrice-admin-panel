@@ -127,6 +127,7 @@ const TopBar = ({ title, className }: TopBarProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
+                
                 <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className="hidden md:inline-block font-medium text-sm">
