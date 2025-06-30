@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useGetChatQuery } from "@/redux/api/chatApi";
 import { IChat, IChatSession } from "@/types";
 import { getSmartTimeAgo } from "@/utils/getSmartTimeAgo";
+import Link from "next/link";
 
 interface ChatConversationProps {
   selectedSession: IChatSession;
@@ -156,14 +157,14 @@ const ChatConversation = ({
                           asChild
                           className="mt-1 h-6 text-xs"
                         >
-                          <a
-                            href={``}
+                          <Link
+                            href={`/products/${message?.product?.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             <ExternalLink className="h-2 w-2 mr-1" />
                             View
-                          </a>
+                          </Link>
                         </Button>
                       </div>
                     </div>
