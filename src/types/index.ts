@@ -77,8 +77,7 @@ export interface IProduct {
   variants: Array<IVariant>;
   specs: Array<{
     group: string;
-    key: string;
-    value: string;
+    properties: [{ key: string; value: string }];
   }>;
   basePrice: number;
   pricing: Array<{ minQuantity: number; maxQuantity: number; price: number }>;
