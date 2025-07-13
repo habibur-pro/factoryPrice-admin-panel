@@ -1,3 +1,4 @@
+import { ProductVariantType } from "@/enum";
 import { z } from "zod";
 
 export const productSchema = z.object({
@@ -14,7 +15,7 @@ export const productSchema = z.object({
     .number()
     .min(0, { message: "Total quantity must be non-negative" }),
   isActive: z.boolean(),
-  isVariant: z.boolean(),
+  variantType: z.enum([ProductVariantType.NO_VARIANT, ProductVariantType.DOUBLE_VARIANT]),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;

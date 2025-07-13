@@ -31,6 +31,7 @@ import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import ProductVariants from "./ProductVariants";
 import SpecificationsSection, { Specification } from "./SpecificationsSection";
+import { ProductVariantType } from "@/enum";
 interface SizeQuantity {
   size: string;
   quantity: string;
@@ -43,9 +44,9 @@ interface ColorVariant {
 export const AddProduct = () => {
   const router = useRouter();
   // Track variant selection type (with or without variant)
-  const [variantType, setVariantType] = useState<
-    "withVariant" | "withoutVariant"
-  >("withVariant");
+  const [variantType, setVariantType] = useState<ProductVariantType>(
+    ProductVariantType.NO_VARIANT
+  );
 
   const [addProductMutation] = useAddProductMutation();
   const [totalQuantity, setTotalQuantity] = useState(0);
@@ -68,15 +69,15 @@ export const AddProduct = () => {
       subcategory: "",
       description: "",
       isActive: false,
-      isVariant: false,
+      variantType: ProductVariantType.NO_VARIANT,
       minOrderQuantity: 10,
-      totalQuantity: 0,
+      totalQuantity: totalQuantity,
     },
   });
   const { errors } = methods.formState;
   console.log(errors);
   const onSubmit = async (data: FieldValues) => {
-    data.isVariant = variantType === "withVariant";
+    data.variantType = variantType;
     console.log("submitted product data", data);
     console.log("call");
     if (tags?.length === 0) {
@@ -102,7 +103,7 @@ export const AddProduct = () => {
     }
     try {
       const formData = new FormData();
-      console.log("specs", specs);
+      setTotalQuantity(data.totalQuantity);
       const productData = {
         ...data,
         variants,
@@ -110,14 +111,15 @@ export const AddProduct = () => {
         specs,
         pricing,
         totalQuantity,
-        
       };
+      console.log("data from add product", data);
+      console.log("quantity from add product", totalQuantity);
       console.log("product data", productData);
       formData.append("data", JSON.stringify(productData));
       images.forEach((image) => {
         formData.append("productImage", image);
       });
-      console.log("add product form data",formData);
+      console.log("add product form data", formData);
       setSaving(true);
       await addProductMutation(formData).unwrap();
       toast.success("Product saved successfully!");
@@ -224,27 +226,33 @@ export const AddProduct = () => {
                     <input
                       type="radio"
                       name="variantType"
-                      value="withVariant"
-                      checked={variantType === "withVariant"}
+                      value={ProductVariantType.NO_VARIANT}
+                      checked={variantType === ProductVariantType.NO_VARIANT}
                       onChange={(e) => {
-                        setVariantType(e.target.value as "withVariant");
+                        setVariantType(
+                          e.target.value as ProductVariantType.NO_VARIANT
+                        );
                         console.log("Selected:", e.target.value);
                       }}
                     />
-                    With Variant
+                    No Variant
                   </label>
                   <label className="flex items-center gap-2">
                     <input
                       type="radio"
                       name="variantType"
-                      value="withoutVariant"
-                      checked={variantType === "withoutVariant"}
+                      value={ProductVariantType.DOUBLE_VARIANT}
+                      checked={
+                        variantType === ProductVariantType.DOUBLE_VARIANT
+                      }
                       onChange={(e) => {
-                        setVariantType(e.target.value as "withoutVariant");
+                        setVariantType(
+                          e.target.value as ProductVariantType.DOUBLE_VARIANT
+                        );
                         console.log("Selected:", e.target.value);
                       }}
                     />
-                    Without Variant
+                    Double
                   </label>
                 </div>
               </div>
@@ -268,32 +276,30 @@ export const AddProduct = () => {
                       setTags={setTags}
                       pricing={pricing}
                       setPricing={setPricing}
+                      variantType={variantType}
                     />
                   </AccordionContent>
                 </AccordionItem>
 
                 {/* Product Variants */}
 
-
-                {
-                  variantType === "withVariant" ? (
-                    <AccordionItem
-                      value="variants"
-                      className="border rounded-lg p-1 mt-4"
-                    >
-                      <AccordionTrigger className="px-4">
-                        Product Variants
-                      </AccordionTrigger>
-                      <AccordionContent className="px-4 pt-2">
-                        <ProductVariants
-                          variants={variants}
-                          setVariants={setVariants}
-                          setTotalQuantity={setTotalQuantity}
-                        />
-                      </AccordionContent>
-                    </AccordionItem>
-                  ) : null
-                }
+                {variantType === ProductVariantType.DOUBLE_VARIANT ? (
+                  <AccordionItem
+                    value="variants"
+                    className="border rounded-lg p-1 mt-4"
+                  >
+                    <AccordionTrigger className="px-4">
+                      Product Variants
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pt-2">
+                      <ProductVariants
+                        variants={variants}
+                        setVariants={setVariants}
+                        setTotalQuantity={setTotalQuantity}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                ) : null}
                 {/* <AccordionItem
                   value="variants"
                   className="border rounded-lg p-1 mt-4"

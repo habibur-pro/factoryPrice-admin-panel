@@ -35,6 +35,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
+import { ProductVariantType } from "@/enum";
 
 interface PricingTier {
   minQuantity: number;
@@ -47,9 +48,16 @@ interface BasicInfoProps {
   setPricing: React.Dispatch<React.SetStateAction<PricingTier[]>>;
   tags: string[];
   setTags: React.Dispatch<React.SetStateAction<string[]>>;
+  variantType: ProductVariantType;
 }
 
-const BasicInfo = ({ pricing, setPricing, tags, setTags }: BasicInfoProps) => {
+const BasicInfo = ({
+  pricing,
+  setPricing,
+  tags,
+  setTags,
+  variantType,
+}: BasicInfoProps) => {
   const { control, watch } = useFormContext();
   const selectedCategory = watch("category");
 
@@ -461,26 +469,38 @@ const BasicInfo = ({ pricing, setPricing, tags, setTags }: BasicInfoProps) => {
             <FormItem>
               <FormLabel>Min. order quantity (Stock Keeping Unit)</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., PROD-12345" {...field} />
+                <Input
+                  placeholder="e.g., PROD-12345"
+                  {...field}
+                  type="number"
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        {/* Total Quantity without variants */}
-       {/* {  <FormField
-          control={control}
-          name="totalQuantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Total Quantity</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., 100" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />} */}
+        {/* Total Stock without variants */}
+        {variantType === ProductVariantType.NO_VARIANT && (
+          <FormField
+            control={control}
+            name="totalQuantity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total Stock</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., 100"
+                    {...field}
+                    type="number"
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <div className="space-y-2">
           <div className="flex items-center">
             <FormLabel>Product Tags/Keywords</FormLabel>
