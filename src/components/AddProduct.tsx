@@ -42,6 +42,11 @@ interface ColorVariant {
 }
 export const AddProduct = () => {
   const router = useRouter();
+  // Track variant selection type (with or without variant)
+  const [variantType, setVariantType] = useState<
+    "withVariant" | "withoutVariant"
+  >("withVariant");
+
   const [addProductMutation] = useAddProductMutation();
   const [totalQuantity, setTotalQuantity] = useState(0);
   const [images, setImages] = useState<File[]>([]);
@@ -63,6 +68,7 @@ export const AddProduct = () => {
       subcategory: "",
       description: "",
       isActive: false,
+      isVariant: false,
       minOrderQuantity: 10,
       totalQuantity: 0,
     },
@@ -70,23 +76,25 @@ export const AddProduct = () => {
   const { errors } = methods.formState;
   console.log(errors);
   const onSubmit = async (data: FieldValues) => {
+    data.isVariant = variantType === "withVariant";
+    console.log("submitted product data", data);
     console.log("call");
     if (tags?.length === 0) {
       toast.error("Tags is required.");
       return;
     }
-    if (pricing?.length === 0) {
-      toast.error("Pricing is required.");
-      return;
-    }
-    if (variants?.length === 0) {
-      toast.error("Variant is required.");
-      return;
-    }
-    if (specs?.length === 0) {
-      toast.error("Specification is required.");
-      return;
-    }
+    // if (pricing?.length === 0) {
+    //   toast.error("Pricing is required.");
+    //   return;
+    // }
+    // if (variants?.length === 0) {
+    //   toast.error("Variant is required.");
+    //   return;
+    // }
+    // if (specs?.length === 0) {
+    //   toast.error("Specification is required.");
+    //   return;
+    // }
 
     if (images?.length === 0) {
       toast.error("Please upload at least one image.");
@@ -102,13 +110,14 @@ export const AddProduct = () => {
         specs,
         pricing,
         totalQuantity,
+        
       };
       console.log("product data", productData);
       formData.append("data", JSON.stringify(productData));
       images.forEach((image) => {
         formData.append("productImage", image);
       });
-      console.log(formData);
+      console.log("add product form data",formData);
       setSaving(true);
       await addProductMutation(formData).unwrap();
       toast.success("Product saved successfully!");
@@ -205,6 +214,41 @@ export const AddProduct = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
+              {/* Variant Type Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Select Variant Type
+                </label>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="variantType"
+                      value="withVariant"
+                      checked={variantType === "withVariant"}
+                      onChange={(e) => {
+                        setVariantType(e.target.value as "withVariant");
+                        console.log("Selected:", e.target.value);
+                      }}
+                    />
+                    With Variant
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="variantType"
+                      value="withoutVariant"
+                      checked={variantType === "withoutVariant"}
+                      onChange={(e) => {
+                        setVariantType(e.target.value as "withoutVariant");
+                        console.log("Selected:", e.target.value);
+                      }}
+                    />
+                    Without Variant
+                  </label>
+                </div>
+              </div>
+
               <Accordion
                 type="single"
                 collapsible
@@ -228,7 +272,29 @@ export const AddProduct = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem
+                {/* Product Variants */}
+
+
+                {
+                  variantType === "withVariant" ? (
+                    <AccordionItem
+                      value="variants"
+                      className="border rounded-lg p-1 mt-4"
+                    >
+                      <AccordionTrigger className="px-4">
+                        Product Variants
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pt-2">
+                        <ProductVariants
+                          variants={variants}
+                          setVariants={setVariants}
+                          setTotalQuantity={setTotalQuantity}
+                        />
+                      </AccordionContent>
+                    </AccordionItem>
+                  ) : null
+                }
+                {/* <AccordionItem
                   value="variants"
                   className="border rounded-lg p-1 mt-4"
                 >
@@ -242,7 +308,7 @@ export const AddProduct = () => {
                       setTotalQuantity={setTotalQuantity}
                     />
                   </AccordionContent>
-                </AccordionItem>
+                </AccordionItem> */}
 
                 <AccordionItem
                   value="specifications"

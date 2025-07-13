@@ -14,6 +14,7 @@ export const productSchema = z.object({
     .number()
     .min(0, { message: "Total quantity must be non-negative" }),
   isActive: z.boolean(),
+  isVariant: z.boolean(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;

@@ -467,6 +467,20 @@ const BasicInfo = ({ pricing, setPricing, tags, setTags }: BasicInfoProps) => {
             </FormItem>
           )}
         />
+        {/* Total Quantity without variants */}
+       {/* {  <FormField
+          control={control}
+          name="totalQuantity"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Total Quantity</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., 100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />} */}
         <div className="space-y-2">
           <div className="flex items-center">
             <FormLabel>Product Tags/Keywords</FormLabel>
