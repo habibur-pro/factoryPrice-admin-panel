@@ -34,6 +34,8 @@ const Orders: React.FC = () => {
   );
   const orders: Order[] = OrderRes?.data?.data;
 
+  console.log("order from admin", orders);
+
   useEffect(() => {
     if (OrderRes?.data?.pagination) {
       setPagination(OrderRes.data.pagination);
@@ -66,15 +68,18 @@ const Orders: React.FC = () => {
       ),
     },
     {
-      key: "user",
+      key: "shippingAddress",
       label: "Customer",
       render: (value, order) => (
         <div className="text-sm">
           <div className="font-medium text-gray-900">
-            {value ? `${value.firstName} ${value.lastName}` : "N/A"}
+            {value ? `${value.fullName}` : "N/A"}
           </div>
           <div className="text-gray-500 text-xs">
-            {value?.email || order.userId}
+            {value?.email || "static email @example.com"}
+          </div>
+          <div className="text-gray-500 text-xs">
+            {value?.phoneNumber}
           </div>
         </div>
       ),

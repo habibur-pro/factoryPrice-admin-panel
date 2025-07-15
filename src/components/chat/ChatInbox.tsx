@@ -17,7 +17,7 @@ const ChatInbox = ({
   onSelectUser,
 }: ChatInboxProps) => {
 
-
+console.log("session from chat inbox", sessions);
   return (
     <div className="h-full w-full border-r bg-white">
       <div className="p-4 border-b">

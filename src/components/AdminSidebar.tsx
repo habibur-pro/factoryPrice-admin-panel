@@ -15,6 +15,7 @@ import {
   LogOut,
   CreditCard,
   MessageCircle,
+  FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -33,9 +34,10 @@ const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Package, label: "Products", path: "/products" },
   { icon: ShoppingCart, label: "Orders", path: "/orders" },
-  { icon: Users, label: "Customers", path: "/customers" },
+  // { icon: Users, label: "Customers", path: "/customers" },
   { icon: CreditCard, label: "Payments", path: "/payments" },
-  { icon: Archive, label: "Inventory", path: "/inventory" },
+  // { icon: Archive, label: "Inventory", path: "/inventory" },
+  { icon: FileQuestion, label: "Queries", path: "/query" },
   // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
   // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];

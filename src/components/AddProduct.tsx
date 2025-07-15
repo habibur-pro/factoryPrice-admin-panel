@@ -103,14 +103,17 @@ export const AddProduct = () => {
     }
     try {
       const formData = new FormData();
-      setTotalQuantity(data.totalQuantity);
+      const quantityToSubmit =
+        variantType === ProductVariantType.DOUBLE_VARIANT
+          ? totalQuantity
+          : data.totalQuantity;
       const productData = {
         ...data,
         variants,
         tags,
         specs,
         pricing,
-        totalQuantity,
+        totalQuantity:quantityToSubmit,
       };
       console.log("data from add product", data);
       console.log("quantity from add product", totalQuantity);

@@ -16,8 +16,9 @@ import { useGetAllPaymentQuery } from "@/redux/api/paymentApi";
 import { IPayment } from "@/types";
 import Link from "next/link";
 import { Eye } from "lucide-react";
+import { useGetSessionsQuery } from "@/redux/api/chatSessionApi";
 
-const Payments: React.FC = () => {
+const Query: React.FC = () => {
   const router = useRouter();
   const [pagination, setPagination] = useState({
     page: 1,
@@ -27,7 +28,7 @@ const Payments: React.FC = () => {
   });
   const [statusFilter, setStatusFilter] = useState("");
   const [searchId, setSearchId] = useState("");
-  const { data: paymentRes, isLoading } = useGetAllPaymentQuery(
+  const { data: queryRes, isLoading } = useGetSessionsQuery(
     {
       page: pagination.page,
       limit: pagination.limit,
@@ -36,15 +37,15 @@ const Payments: React.FC = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-  const payments: IPayment[] = paymentRes?.data?.data;
+  const queries = queryRes?.data;
 
-  console.log("payments from admin", payments);
+  console.log("queries from admin", queries);
 
   useEffect(() => {
-    if (paymentRes?.data?.pagination) {
-      setPagination(paymentRes.data.pagination);
+    if (queries?.pagination) {
+      setPagination(queries.pagination);
     }
-  }, [paymentRes]);
+  }, [queries]);
 
   useEffect(() => {
     setPagination((prev) => ({ ...prev, page: 1 }));
@@ -52,68 +53,58 @@ const Payments: React.FC = () => {
 
   const columns: Column<IPayment>[] = [
     {
-      key: "id",
-      label: "Payment Id",
+      key: "senderName",
+      label: "Name",
       render: (value) => (
-        <span className="font-mono text-xs text-gray-600">{value}</span>
+        <span className="font-medium text-gray-900">{value}</span>
       ),
     },
 
     {
-      key: "order.shippingAddress",
-      label: "Customer",
-      render: (value, payment) => {
-        console.log("customer value", value);
-        console.log("payment", payment);
-        return  (
-           <div className="text-sm">
-          <div className="font-medium text-gray-900">
-            {value ? `${value.fullName}` : "N/A"}
+      key: "senderPhone",
+      label: "Phone Number / Email",
+      render: (value) => {
+        return (
+          <div className="text-sm">
+            <div className="font-medium text-gray-900">{value}</div>
           </div>
-          <div className="text-gray-500 text-xs">
-            {value?.email || "email static"}
-          </div>
-          <div className="text-gray-500 text-xs">
-          {value?.dialCode}  {value?.phoneNumber}
-          </div>
-        </div>
-        )
+        );
       },
     },
-    {
-      key: "amount",
-      label: "Total Amount",
-      render: (value, payment) => (
-        <div className="text-sm">
-          <div className="font-medium text-gray-900">
-            ${payment.amount.toFixed(2)}
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "status",
-      label: "Payment Status",
-      render: (value) => (
-        <span
-          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-            value === "paid"
-              ? "bg-green-100 text-green-800"
-              : value === "pending"
-              ? "bg-blue-100 text-blue-800"
-              : value === "unpaid"
-              ? "bg-red-100 text-red-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {value}
-        </span>
-      ),
-    },
+    // {
+    //   key: "amount",
+    //   label: "Total Amount",
+    //   render: (value, payment) => (
+    //     <div className="text-sm">
+    //       <div className="font-medium text-gray-900">
+    //         ${payment.amount.toFixed(2)}
+    //       </div>
+    //     </div>
+    //   ),
+    // },
+    // {
+    //   key: "status",
+    //   label: "Payment Status",
+    //   render: (value) => (
+    //     <span
+    //       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+    //         value === "paid"
+    //           ? "bg-green-100 text-green-800"
+    //           : value === "pending"
+    //           ? "bg-blue-100 text-blue-800"
+    //           : value === "unpaid"
+    //           ? "bg-red-100 text-red-800"
+    //           : "bg-gray-100 text-gray-800"
+    //       }`}
+    //     >
+    //       {value}
+    //     </span>
+    //   ),
+    // },
 
     {
       key: "createdAt",
-      label: "Payment Date",
+      label: "🕒 Submitted At",
       render: (value) => (
         <div className="text-sm">
           <div>{new Date(value).toLocaleDateString()}</div>
@@ -124,19 +115,19 @@ const Payments: React.FC = () => {
       ),
       sortable: true,
     },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (_, product) => (
-        <Link
-          href={`/payments/${product?.id}`}
-          className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <Eye className="w-4 h-4 mr-1" />
-          View Details
-        </Link>
-      ),
-    },
+    // {
+    //   key: "actions",
+    //   label: "Actions",
+    //   render: (_, product) => (
+    //     <Link
+    //       href={`/payments/${product?.id}`}
+    //       className="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+    //     >
+    //       <Eye className="w-4 h-4 mr-1" />
+    //       View Details
+    //     </Link>
+    //   ),
+    // },
   ];
 
   const filters = (
@@ -158,18 +149,18 @@ const Payments: React.FC = () => {
     <div>
       <div className="">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-          <p className="text-gray-600">Manage your payments</p>
+          <h1 className="text-2xl font-bold text-gray-900">Queries</h1>
+          <p className="text-gray-600">Manage your queries</p>
         </div>
       </div>
 
       <DataTable
-        data={payments}
+        data={queries}
         columns={columns}
-        filters={filters}
+        // filters={filters}
         searchValue={searchId}
         onSearch={(value) => setSearchId(value)}
-        searchPlaceholder="search payment by id"
+        searchPlaceholder="search query by name or email or phone"
         pagination={{
           currentPage: pagination.page,
           totalPages: pagination.totalPages,
@@ -181,4 +172,4 @@ const Payments: React.FC = () => {
   );
 };
 
-export default Payments;
+export default Query;
