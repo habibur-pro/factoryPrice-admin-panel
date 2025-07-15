@@ -240,17 +240,16 @@ export interface IOrderTimeline {
 
 export interface IChatSession {
   id: string;
-  socketId: string;
   productId: string;
   product: IProduct;
-  userId: string;
-  user: IUser;
+  senderId: string;
+  senderName: string;
+  senderPhone: string;
   lastMessage: string;
   lastMessageTime: Date;
   unreadCount: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
+
 export interface IReport {
   sellChart: Array<{
     sales: number;

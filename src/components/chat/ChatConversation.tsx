@@ -44,6 +44,7 @@ const ChatConversation = ({
     pollingInterval: 3000,
   });
   const chats: Array<IChat> = chatRes?.data;
+  console.log("chat from admin panel", chats);
   useEffect(() => {
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -98,12 +99,12 @@ const ChatConversation = ({
       <div className="flex items-center gap-3 p-4 border-b bg-gray-50">
         <div className="relative">
           <Avatar className="h-10 w-10">
-            <AvatarImage
+            {/* <AvatarImage
               src={selectedSession.user.photo}
               alt={selectedSession.user.firstName}
-            />
-            <AvatarFallback>
-              {selectedSession.user.firstName
+            /> */}
+            <AvatarFallback className="uppercase">
+              {selectedSession.senderName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
@@ -114,7 +115,7 @@ const ChatConversation = ({
           )} */}
         </div>
         <div>
-          <h3 className="font-medium">{selectedSession.user.firstName}</h3>
+          <h3 className="font-medium">{selectedSession.senderName}</h3>
           {/* <p className="text-sm text-gray-500">
             {selectedSession.id ? "Online" : "Offline"}
           </p> */}
@@ -176,12 +177,12 @@ const ChatConversation = ({
                 {message?.content && (
                   <div className="flex gap-3 group">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
+                      {/* <AvatarImage
                         src={selectedSession.user.photo}
                         alt={selectedSession.user.firstName}
-                      />
-                      <AvatarFallback>
-                        {selectedSession.user.firstName
+                      /> */}
+                      <AvatarFallback className="uppercase">
+                        {selectedSession.senderName
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
@@ -201,12 +202,12 @@ const ChatConversation = ({
                 {message?.files && (
                   <div className="flex gap-3 group">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={selectedSession.user.photo}
-                        alt={selectedSession.user.firstName}
-                      />
-                      <AvatarFallback>
-                        {selectedSession.user.firstName
+                          {/* <AvatarImage
+                            src={selectedSession.user.photo}
+                            alt={selectedSession.user.firstName}
+                          /> */}
+                      <AvatarFallback className="uppercase">
+                        {selectedSession.senderName
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}

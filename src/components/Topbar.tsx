@@ -22,16 +22,18 @@ import { Bell, LogOut, MessageCircle, Search, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import ChatPanel from "./chat/ChatPanel";
+import { closeChatModal, openChatModal } from "@/redux/features/chat/chatSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
 type TopBarProps = {
   title: string;
   className?: string;
 };
 
 const TopBar = ({ title, className }: TopBarProps) => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const session = useSession();
   const user = session?.data?.user;
-  console.log("user top bar", user);
+  const isOpen = useAppSelector((state) => state.chatToggle.isOpen);
+  const dispatch = useAppDispatch();
   return (
     <header
       className={`flex items-center justify-between h-16 px-6 border-b bg-white ${className}`}
@@ -43,13 +45,22 @@ const TopBar = ({ title, className }: TopBarProps) => {
           <Input placeholder="Search..." className="pl-10" />
           <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
         </div>
-        <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+        <Sheet
+          open={isOpen}
+          onOpenChange={(open) => {
+            if (open) {
+              dispatch(openChatModal());
+            } else {
+              dispatch(closeChatModal());
+            }
+          }}
+        >
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <MessageCircle className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs">
+              {/* <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs">
                 5
-              </Badge>
+              </Badge> */}
             </Button>
           </SheetTrigger>
           <SheetContent className="w-[90vw] max-w-6xl p-6">
@@ -67,9 +78,9 @@ const TopBar = ({ title, className }: TopBarProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs">
+              {/* <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs">
                 3
-              </Badge>
+              </Badge> */}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
@@ -127,8 +138,9 @@ const TopBar = ({ title, className }: TopBarProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
-                
-                <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback>
+                  {user?.name?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <span className="hidden md:inline-block font-medium text-sm">
                 {user?.name}
@@ -144,7 +156,10 @@ const TopBar = ({ title, className }: TopBarProps) => {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer" onClick={() => signOut()}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => signOut()}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>
