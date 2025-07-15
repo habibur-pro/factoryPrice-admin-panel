@@ -459,7 +459,8 @@ const BasicInfo = ({ pricing, setPricing }: BasicInfoProps) => {
         <div className="mb-4">
           <h4 className="text-md font-medium">Pricing</h4>
           <p className="text-sm text-muted-foreground">
-            Set the base price and quantity-based pricing tiers with min/max
+            Set the base price and 
+             tiers with min/max
             ranges
           </p>
         </div>

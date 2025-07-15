@@ -16,6 +16,8 @@ const ChatInbox = ({
   selectedSessionId,
   onSelectUser,
 }: ChatInboxProps) => {
+
+console.log("session from chat inbox", sessions);
   return (
     <div className="h-full w-full border-r bg-white">
       <div className="p-4 border-b">
@@ -36,14 +38,14 @@ const ChatInbox = ({
               >
                 <div className="relative">
                   <Avatar className="h-12 w-12">
-                    {session?.user?.photo && (
+                    {/* {session?.user?.photo && (
                       <AvatarImage
                         src={session.user.photo}
                         alt={session.user.firstName}
                       />
-                    )}
+                    )} */}
                     <AvatarFallback>
-                      {session.user.firstName
+                      {session?.senderName
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
@@ -57,7 +59,7 @@ const ChatInbox = ({
                 <div className="flex-1 min-w-0 w-full">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-medium text-gray-900 truncate">
-                      {session.user.firstName}
+                      {session.senderName}
                     </h3>
                     <span className="text-xs text-gray-500 ">
                       {getSmartTimeAgo(session.lastMessageTime)}

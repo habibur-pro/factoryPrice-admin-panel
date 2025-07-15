@@ -16,6 +16,8 @@ import StatCard from "../StatCard";
 const Dashboard = () => {
   const { data: ReportRes, isLoading } = useGetFullReportQuery("");
   const report: IReport = ReportRes?.data;
+  console.log("report", report);
+  console.log("isLoading", isLoading);
   if (isLoading || !report) {
     return (
       <div>

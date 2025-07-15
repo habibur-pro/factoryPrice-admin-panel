@@ -29,3 +29,8 @@ export enum OrderStatus {
   Refunded = "refunded",
   Failed = "failed",
 }
+
+export enum ProductVariantType {
+  NO_VARIANT = "no_variant",
+  DOUBLE_VARIANT = "double_variant",
+}

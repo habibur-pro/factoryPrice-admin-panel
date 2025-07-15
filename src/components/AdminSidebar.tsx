@@ -14,11 +14,15 @@ import {
   ChevronLeft,
   LogOut,
   CreditCard,
+  MessageCircle,
+  FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import { useAppDispatch } from "@/redux/hook";
+import { toggleChatModal } from "@/redux/features/chat/chatSlice";
 
 type NavItem = {
   icon: React.ElementType;
@@ -30,9 +34,10 @@ const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Package, label: "Products", path: "/products" },
   { icon: ShoppingCart, label: "Orders", path: "/orders" },
-  { icon: Users, label: "Customers", path: "/customers" },
+  // { icon: Users, label: "Customers", path: "/customers" },
   { icon: CreditCard, label: "Payments", path: "/payments" },
-  { icon: Archive, label: "Inventory", path: "/inventory" },
+  // { icon: Archive, label: "Inventory", path: "/inventory" },
+  { icon: FileQuestion, label: "Queries", path: "/query" },
   // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
   // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];
@@ -43,6 +48,7 @@ type AdminSidebarProps = {
 
 const AdminSidebar = ({ className }: AdminSidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
+  const dispatch = useAppDispatch();
 
   return (
     <div
@@ -87,6 +93,12 @@ const AdminSidebar = ({ className }: AdminSidebarProps) => {
               {!collapsed && <span>{item.label}</span>}
             </Link>
           ))}
+          <button onClick={() => dispatch(toggleChatModal())} className="flex items-center p-2 rounded-md hover:bg-primary/10 text-gray-700 hover:text-primary transition-all group cursor-pointer w-full">
+            <MessageCircle
+              className={cn("w-5 h-5", collapsed ? "mx-auto" : "mr-3")}
+            />
+            Chats
+          </button>
         </nav>
       </div>
 
