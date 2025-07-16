@@ -41,6 +41,7 @@ const OrderDetails: React.FC = () => {
   // const [order, setOrder] = useState<Order | null>(null);
   const { data: orderRes, isLoading } = useGetOrderQuery(id, { skip: !id });
   const order: IOrder = orderRes?.data;
+  console.log("order from order details",order)
   const { data: timelineRes } = useGetTimeLinesQuery(order?.id, {
     skip: !order?.id,
   });
@@ -406,13 +407,16 @@ const OrderDetails: React.FC = () => {
                   <Select
                     value={paymentStatus}
                     onValueChange={setPaymentStatus}
+                    defaultValue={order.paymentStatus}
+                    
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select payment status" />
+                      <SelectValue defaultValue={order.paymentStatus} placeholder="Select payment status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="unpaid">Unpaid</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
