@@ -133,6 +133,7 @@ export interface IShippingAddress {
   user: IUser;
   country: string;
   fullName: string;
+  email:string;
   phoneNumber: string;
   dialCode: string;
   streetAddress: string;
