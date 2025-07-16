@@ -41,6 +41,7 @@ const OrderDetails: React.FC = () => {
   // const [order, setOrder] = useState<Order | null>(null);
   const { data: orderRes, isLoading } = useGetOrderQuery(id, { skip: !id });
   const order: IOrder = orderRes?.data;
+  console.log("order from order details",order)
   const { data: timelineRes } = useGetTimeLinesQuery(order?.id, {
     skip: !order?.id,
   });
@@ -285,39 +286,36 @@ const OrderDetails: React.FC = () => {
               </div>
             </div>
             <div className="p-6">
-              {order.user ? (
+              {order?.shippingAddress ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Name
                     </label>
                     <p className="text-sm text-gray-900">
-                      {order.user.firstName} {order.user.lastName}
+                      {order.shippingAddress.fullName}
                     </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Email
                     </label>
-                    <p className="text-sm text-blue-600">{order.user.email}</p>
+                    <p className="text-sm text-blue-600">
+                      {order.shippingAddress.email}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      User ID
+                      Order ID
                     </label>
-                    <Link
-                      href={`/customers/${order.user.id}`}
-                      className="text-sm text-blue-600"
-                    >
-                      {order.user.id || ""}
-                    </Link>
+                    <p className="text-sm text-blue-600">{order.id}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Phone
                     </label>
                     <p className="text-sm text-gray-900">
-                      {order.user.phoneNumber || "Not provided"}
+                      {order.shippingAddress.phoneNumber || "Not provided"}
                     </p>
                   </div>
                   <div>
@@ -325,23 +323,21 @@ const OrderDetails: React.FC = () => {
                       Country
                     </label>
                     <p className="text-sm text-gray-900">
-                      {order.user.country || "Not provided"}
+                      {order.shippingAddress.country || "Not provided"}
                     </p>
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Company
                     </label>
                     <p className="text-sm text-gray-900">
-                      {order.user.companyName || ""}
+                      {order.shippingAddress.co || ""}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
               ) : (
                 <div>
-                  <p className="text-sm text-gray-500">
-                    Customer ID: {order.userId}
-                  </p>
+                  <p className="text-sm text-gray-500">Order ID: {order.id}</p>
                 </div>
               )}
             </div>
@@ -411,13 +407,16 @@ const OrderDetails: React.FC = () => {
                   <Select
                     value={paymentStatus}
                     onValueChange={setPaymentStatus}
+                    defaultValue={order.paymentStatus}
+                    
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select payment status" />
+                      <SelectValue defaultValue={order.paymentStatus} placeholder="Select payment status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="unpaid">Unpaid</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
