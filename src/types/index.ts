@@ -246,6 +246,9 @@ export interface IChatSession {
   senderId: string;
   senderName: string;
   senderPhone: string;
+  senderCountryCode:string;
+  senderCountry:string;
+  senderEmail:string;
   lastMessage: string;
   lastMessageTime: Date;
   unreadCount: number;

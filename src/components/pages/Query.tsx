@@ -1,21 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import DataTable, { Column } from "@/components/DataTable";
-import { Order } from "@/types/schemas";
-import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
-import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { useGetAllPaymentQuery } from "@/redux/api/paymentApi";
-import { IPayment } from "@/types";
+import { IChatSession, IPayment } from "@/types";
 import Link from "next/link";
-import { Eye } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useGetSessionsQuery } from "@/redux/api/chatSessionApi";
 
 const Query: React.FC = () => {
@@ -39,8 +28,6 @@ const Query: React.FC = () => {
   );
   const queries = queryRes?.data;
 
-  console.log("queries from admin", queries);
-
   useEffect(() => {
     if (queries?.pagination) {
       setPagination(queries.pagination);
@@ -51,7 +38,7 @@ const Query: React.FC = () => {
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, [statusFilter]);
 
-  const columns: Column<IPayment>[] = [
+  const columns: Column<IChatSession>[] = [
     {
       key: "senderName",
       label: "Name",
@@ -59,18 +46,61 @@ const Query: React.FC = () => {
         <span className="font-medium text-gray-900">{value}</span>
       ),
     },
-
     {
       key: "senderPhone",
-      label: "Phone Number / Email",
-      render: (value) => {
+      label: "Whatsapp Number",
+      render: (value, row) => {
+        const fullPhone = `${row.senderCountryCode?.replace("+", "")}${value}`;
+        const phoneWithPlus = `${row.senderCountryCode}${value}`;
+
         return (
-          <div className="text-sm">
-            <div className="font-medium text-gray-900">{value}</div>
+          <div className="text-sm space-y-2">
+            {/* WhatsApp link */}
+            <div className="font-medium text-gray-900 flex gap-2 items-center">
+              <span>{phoneWithPlus}</span>
+              <Link
+                href={`https://wa.me/${fullPhone}`}
+                title="Open WhatsApp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Call Now Button */}
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 rounded transition cursor-pointer"
+              onClick={() => router.push(`tel:${phoneWithPlus}`)}
+            >
+              Call Now
+            </button>
           </div>
         );
       },
     },
+    {
+      key: "senderEmail",
+      label: "Email",
+      render: (value, row) => {
+        return (
+          <div className="text-sm">
+            <div className="font-medium text-gray-900 flex gap-2 items-center">
+              <a
+                href={`mailto:${value}?subject=Regarding Your Query`}
+                className="text-blue-600 underline hover:text-blue-800 transition"
+                title="Send Email"
+              >
+                {value}
+                {/* <Send className="w-4 h-4 text-blue-600" /> */}
+              </a>
+            </div>
+          </div>
+        );
+      },
+    },
+
     // {
     //   key: "amount",
     //   label: "Total Amount",
