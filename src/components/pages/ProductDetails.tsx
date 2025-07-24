@@ -149,6 +149,14 @@ const ProductDetails: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Wear House Details
+                  </label>
+                  <p className="text-sm text-gray-900 font-mono">
+                    {product.wearHouseLocation},{product.wearHouseNo}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category
                   </label>
                   <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">

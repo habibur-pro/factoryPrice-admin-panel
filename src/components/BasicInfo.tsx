@@ -218,6 +218,32 @@ const BasicInfo = ({
             </FormItem>
           )}
         />
+        <FormField
+          control={control}
+          name="wearHouseNo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Wear House No</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter wear house no" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="wearHouseLocation"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Wear House Location</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter wear house locaiton" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={control}
@@ -466,7 +492,7 @@ const BasicInfo = ({
           control={control}
           name="minOrderQuantity"
           render={({ field }) => (
-            <FormItem>
+          <FormItem>
               <FormLabel>Min. order quantity (Stock Keeping Unit)</FormLabel>
               <FormControl>
                 <Input

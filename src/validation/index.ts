@@ -11,6 +11,8 @@ export const productSchema = z.object({
     .number()
     .positive({ message: "minOrderQuantity must be positive" }),
   description: z.string().min(1, { message: "Description is required" }),
+  wearHouseNo: z.string().min(1, { message: "Description is required" }),
+  wearHouseLocation: z.string().min(1, { message: "Description is required" }),
   totalQuantity: z
     .number()
     .min(0, { message: "Total quantity must be non-negative" }),

@@ -91,6 +91,9 @@ const Products: React.FC = () => {
               {product.variants.length} variants
             </div>
           )}
+          <div className="text-slate-600 text-xs">
+            <span className="font-semibold">{product?.wearHouseLocation}</span>,{product?.wearHouseNo} 
+          </div>
         </div>
       ),
     },
@@ -194,7 +197,7 @@ const Products: React.FC = () => {
         </Link>
       </div>
       <DataTable
-        data={ products}
+        data={products}
         columns={columns}
         searchValue={searchValue}
         onSearch={setSearchValue}

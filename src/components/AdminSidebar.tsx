@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
   // { icon: Users, label: "Customers", path: "/customers" },
   { icon: CreditCard, label: "Payments", path: "/payments" },
   // { icon: Archive, label: "Inventory", path: "/inventory" },
-  { icon: FileQuestion, label: "Queries", path: "/query" },
+  { icon: FileQuestion, label: "New Leads", path: "/query" },
   // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
   // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];
