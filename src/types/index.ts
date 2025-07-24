@@ -72,6 +72,8 @@ export interface IProduct {
   sku: string;
   title: string;
   description?: string;
+  wearHouseNo:string;
+  wearHouseLocation:string;
   slug?: string;
   category: ICategory;
   variants: Array<IVariant>;

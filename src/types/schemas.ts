@@ -56,6 +56,8 @@ export interface Product {
   id: string;
   name: string;
   description: string;
+  wearHouseNo: string;
+  wearHouseLocation: string;
   slug: string;
   category: Subcategory;
   title: string;
