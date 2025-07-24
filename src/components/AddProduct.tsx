@@ -51,6 +51,7 @@ export const AddProduct = () => {
   const [addProductMutation] = useAddProductMutation();
   const [totalQuantity, setTotalQuantity] = useState(0);
   const [images, setImages] = useState<File[]>([]);
+  const [videoURL, setVideoURL] = useState("");
   const [variants, setVariants] = useState<ColorVariant[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [specs, setSpecs] = useState<Array<Specification>>([]);
@@ -60,6 +61,8 @@ export const AddProduct = () => {
   const [saving, setSaving] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
+  console.log("video url out of submit",videoURL)
+
   const methods = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -68,9 +71,11 @@ export const AddProduct = () => {
       category: "",
       subcategory: "",
       description: "",
+      wearHouseNo: "",
+      wearHouseLocation: "",
       isActive: false,
       variantType: ProductVariantType.NO_VARIANT,
-      minOrderQuantity: 10,
+      minOrderQuantity: 1,
       totalQuantity: totalQuantity,
     },
   });
@@ -113,16 +118,17 @@ export const AddProduct = () => {
         tags,
         specs,
         pricing,
-        totalQuantity:quantityToSubmit,
+        totalQuantity: quantityToSubmit,
+        videoURL
       };
-      console.log("data from add product", data);
-      console.log("quantity from add product", totalQuantity);
-      console.log("product data", productData);
       formData.append("data", JSON.stringify(productData));
       images.forEach((image) => {
         formData.append("productImage", image);
       });
-      console.log("add product form data", formData);
+      // if (videoURL) {
+      //   formData.append("videoURL", videoURL);
+      // }
+
       setSaving(true);
       await addProductMutation(formData).unwrap();
       toast.success("Product saved successfully!");
@@ -134,20 +140,6 @@ export const AddProduct = () => {
       setSaving(false);
     }
   };
-
-  // const saveAsDraft = () => {
-  //   const formData = methods.getValues();
-  //   console.log("Draft saved:", {
-  //     ...formData,
-  //     images,
-  //     variants,
-  //     tags,
-  //     specs,
-  //     pricing,
-  //     status: "draft",
-  //   });
-  //   toast.success("Draft saved successfully");
-  // };
 
   const handleCancel = () => {
     // Check if there's unsaved data before showing the confirmation dialog
@@ -348,7 +340,12 @@ export const AddProduct = () => {
             <div className="space-y-6">
               <div className="border rounded-lg p-6">
                 <h3 className="text-lg font-medium mb-4">Product Media</h3>
-                <ProductMedia images={images} setImages={setImages} />
+                <ProductMedia
+                  images={images}
+                  setImages={setImages}
+                  videoURL={videoURL}
+                  setVideoURL={setVideoURL}
+                />
               </div>
 
               <div className="border rounded-lg p-6">
