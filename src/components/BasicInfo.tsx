@@ -15,27 +15,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  useAddCategoryMutation,
-  useGetAllCategoryQuery,
-  useGetSubcategoryQuery,
-} from "@/redux/api/categoryApi";
 import { useAddSubcategoryMutation } from "@/redux/api/subcategoryApi";
-import { ICategory, ISubcategory } from "@/types";
-import { FileText, Plus, Upload, X } from "lucide-react";
+import { FileText, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
 import { ProductVariantType } from "@/enum";
+import { NestedCategorySelector } from "./NestedCategorySelector";
 
 interface PricingTier {
   minQuantity: number;
@@ -72,14 +59,14 @@ const BasicInfo = ({
   const [subcategoryDialogOpen, setSubcategoryDialogOpen] = useState(false);
 
   // redux
-  const [addCategory] = useAddCategoryMutation();
-  const [addSubcategory] = useAddSubcategoryMutation();
-  const { data: categoryRes } = useGetAllCategoryQuery("");
-  const { data: subcategoryRes } = useGetSubcategoryQuery(selectedCategory, {
-    skip: !selectedCategory,
-  });
-  const categories = categoryRes?.data;
-  const subcategories = subcategoryRes?.data;
+  // const [addCategory] = useAddCategoryMutation();
+  // const [addSubcategory] = useAddSubcategoryMutation();
+  // const { data: categoryRes } = useGetAllCategoryQuery("");
+  // const { data: subcategoryRes } = useGetSubcategoryQuery(selectedCategory, {
+  //   skip: !selectedCategory,
+  // });
+  // const categories = categoryRes?.data;
+  // const subcategories = subcategoryRes?.data;
   const [tagInput, setTagInput] = useState("");
   const addTag = () => {
     if (tagInput && !tags.includes(tagInput)) {
@@ -147,7 +134,7 @@ const BasicInfo = ({
         formData.append("icon", catData.icon);
       }
       try {
-        await addCategory(formData).unwrap();
+        // await addCategory(formData).unwrap();
         toast.success("category added");
         setCategoryDialogOpen(false);
       } catch (error: any) {
@@ -170,7 +157,7 @@ const BasicInfo = ({
         formData.append("parentCategoryName", selectedCategory);
       }
       try {
-        await addSubcategory(formData).unwrap();
+        // await addSubcategory(formData).unwrap();
         toast.success("subcategory added");
       } catch (error: any) {
         toast.error(error?.data?.message || error?.message);
@@ -244,8 +231,29 @@ const BasicInfo = ({
             </FormItem>
           )}
         />
-
         <FormField
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <FormControl>
+                <NestedCategorySelector
+                  value={field.value}
+                  onChange={(categoryId: string) => {
+                    // console.log("field change basic info",categoryId)
+                    field.onChange(categoryId);
+                    // If you need to store the full path:
+                    // setValue('categoryPath', selectedPath);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* <FormField
           control={control}
           name="category"
           render={({ field }) => (
@@ -344,9 +352,9 @@ const BasicInfo = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
-        <FormField
+        {/* <FormField
           control={control}
           name="subcategory"
           render={({ field }) => (
@@ -467,7 +475,7 @@ const BasicInfo = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
       </div>
 
       <div className="space-y-4">
@@ -492,7 +500,7 @@ const BasicInfo = ({
           control={control}
           name="minOrderQuantity"
           render={({ field }) => (
-          <FormItem>
+            <FormItem>
               <FormLabel>Min. order quantity (Stock Keeping Unit)</FormLabel>
               <FormControl>
                 <Input

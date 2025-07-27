@@ -61,7 +61,6 @@ export const AddProduct = () => {
   const [saving, setSaving] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
-  console.log("video url out of submit",videoURL)
 
   const methods = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
