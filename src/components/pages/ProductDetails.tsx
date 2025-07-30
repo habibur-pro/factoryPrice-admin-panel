@@ -89,11 +89,22 @@ const ProductDetails: React.FC = () => {
   };
 
   const getPriceRange = () => {
-    if (product.pricing.length === 0) return null;
-    const minPrice = Math.min(...product.pricing.map((p) => p.price));
-    const maxPrice = Math.max(...product.pricing.map((p) => p.price));
+    if (product.quantityBasedDiscountTier.length === 0) return null;
+    const minPrice = Math.min(
+      ...product.quantityBasedDiscountTier.map((p) => p.discount)
+    );
+    const maxPrice = Math.max(
+      ...product.quantityBasedDiscountTier.map((p) => p.discount)
+    );
     return { minPrice, maxPrice };
   };
+
+  // const getPriceRange = () => {
+  //   if (product.pricing.length === 0) return null;
+  //   const minPrice = Math.min(...product.pricing.map((p) => p.price));
+  //   const maxPrice = Math.max(...product.pricing.map((p) => p.price));
+  //   return { minPrice, maxPrice };
+  // };
 
   return (
     <div>
@@ -205,7 +216,8 @@ const ProductDetails: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <DollarSign className="w-5 h-5 mr-2 text-gray-400" />
-                Pricing Tiers
+                {/* Pricing Tiers */}
+                Discount
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -217,7 +229,8 @@ const ProductDetails: React.FC = () => {
                         Quantity Range
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Price per Unit
+                        {/* Price per Unit */}
+                        Discount
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Savings
@@ -225,7 +238,40 @@ const ProductDetails: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {product.pricing.map((tier, index) => (
+                    {product?.quantityBasedDiscountTier?.map((tier, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {tier.minQuantity} - {tier.maxQuantity} units
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                          % {tier.discount.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm">
+                          <span className="text-green-600">
+                            $
+                            {(
+                             tier.discount * (product.basePrice / 100)
+                            ).toFixed(2)}{" "}
+                            off
+                          </span>
+                        </td>
+                        {/* <td className="px-4 py-4 whitespace-nowrap text-sm">
+                          {index === 0 ? (
+                            <span className="text-gray-500">Base price</span>
+                          ) : (
+                            <span className="text-green-600">
+                              $
+                              {(
+                                product.quantityBasedDiscountTier[0].discount -
+                                tier.discount
+                              ).toFixed(2)}{" "}
+                              off
+                            </span>
+                          )}
+                        </td> */}
+                      </tr>
+                    ))}
+                    {/* {product.pricing.map((tier, index) => (
                       <tr key={index}>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                           {tier.minQuantity} - {tier.maxQuantity} units
@@ -247,7 +293,7 @@ const ProductDetails: React.FC = () => {
                           )}
                         </td>
                       </tr>
-                    ))}
+                    ))} */}
                   </tbody>
                 </table>
               </div>
@@ -407,7 +453,8 @@ const ProductDetails: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <DollarSign className="w-5 h-5 mr-2 text-gray-400" />
-                Pricing Summary
+                {/* Pricing Summary */}
+                Discount Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -422,10 +469,11 @@ const ProductDetails: React.FC = () => {
               {getPriceRange() && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price Range
+                    {/* Price Range */}
+                    Discount Range
                   </label>
                   <p className="text-sm text-gray-900">
-                    ${getPriceRange()!.minPrice.toFixed(2)} - $
+                    % {getPriceRange()!.minPrice.toFixed(2)} - %
                     {getPriceRange()!.maxPrice.toFixed(2)}
                   </p>
                 </div>

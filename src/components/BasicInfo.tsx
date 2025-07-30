@@ -24,23 +24,30 @@ import { Textarea } from "./ui/textarea";
 import { ProductVariantType } from "@/enum";
 import { NestedCategorySelector } from "./NestedCategorySelector";
 
-interface PricingTier {
+// interface PricingTier {
+//   minQuantity: number;
+//   maxQuantity: number;
+//   price: number;
+// }
+
+// QuantityBasedDiscountTierType
+interface IQuantityBasedDiscountTier {
   minQuantity: number;
   maxQuantity: number;
-  price: number;
+  discount: number;
 }
 
 interface BasicInfoProps {
-  pricing: PricingTier[];
-  setPricing: React.Dispatch<React.SetStateAction<PricingTier[]>>;
+  quantityBasedDiscountTier: IQuantityBasedDiscountTier[];
+  setQuantityBasedDiscountTier: React.Dispatch<React.SetStateAction<IQuantityBasedDiscountTier[]>>;
   tags: string[];
   setTags: React.Dispatch<React.SetStateAction<string[]>>;
   variantType: ProductVariantType;
 }
 
 const BasicInfo = ({
-  pricing,
-  setPricing,
+  quantityBasedDiscountTier,
+  setQuantityBasedDiscountTier,
   tags,
   setTags,
   variantType,
@@ -88,38 +95,38 @@ const BasicInfo = ({
   // Add a new pricing tier
   const addPricingTier = () => {
     // Get the highest maxQuantity from current tiers
-    const highestMax = pricing.reduce(
+    const highestMax = quantityBasedDiscountTier.reduce(
       (max, tier) => (tier.maxQuantity > max ? tier.maxQuantity : max),
       0
     );
 
     // Add a new tier starting from the next quantity
-    setPricing([
-      ...pricing,
+    setQuantityBasedDiscountTier([
+      ...quantityBasedDiscountTier,
       {
         minQuantity: highestMax + 1,
         maxQuantity: highestMax + 50,
-        price: 0,
+        discount: 0,
       },
     ]);
   };
 
   // Remove a pricing tier
   const removePricingTier = (index: number) => {
-    if (pricing.length > 1) {
-      setPricing(pricing.filter((_, i) => i !== index));
+    if (quantityBasedDiscountTier.length > 1) {
+      setQuantityBasedDiscountTier(quantityBasedDiscountTier.filter((_, i) => i !== index));
     }
   };
 
   // Update pricing tier
   const updatePricing = (
     index: number,
-    field: keyof PricingTier,
+    field: keyof IQuantityBasedDiscountTier,
     value: number
   ) => {
-    const newPricing = [...pricing];
+    const newPricing = [...quantityBasedDiscountTier];
     newPricing[index] = { ...newPricing[index], [field]: value };
-    setPricing(newPricing);
+    setQuantityBasedDiscountTier(newPricing);
   };
 
   // Handle new category creation
@@ -535,6 +542,26 @@ const BasicInfo = ({
             )}
           />
         )}
+
+        {/* Base price */}
+        <FormField
+          control={control}
+          name="basePrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Base Price</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="e.g., 100"
+                  {...field}
+                  type="number"
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="space-y-2">
           <div className="flex items-center">
             <FormLabel>Product Tags/Keywords</FormLabel>
@@ -577,8 +604,106 @@ const BasicInfo = ({
           </p>
         </div>
       </div>
+      {/* Discount by Quantity Tier */}
 
       <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <h5 className="text-sm font-medium">Quantity-Based Discount</h5>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addPricingTier}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-3 w-3" />
+            Add Tier
+          </Button>
+        </div>
+
+        <div className="border rounded-md overflow-hidden">
+          <div className="grid grid-cols-4 gap-2 p-3 bg-secondary/30 text-sm font-medium">
+            <div>Min Quantity</div>
+            <div>Max Quantity</div>
+            <div>Discount(%)</div>
+            <div></div>
+          </div>
+
+          {quantityBasedDiscountTier.map((tier, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-4 gap-2 p-3 items-center border-t"
+            >
+              <div>
+                <Input
+                  type="number"
+                  min="1"
+                  value={tier.minQuantity}
+                  onChange={(e) =>
+                    updatePricing(
+                      index,
+                      "minQuantity",
+                      parseInt(e.target.value) || 1
+                    )
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Input
+                  type="number"
+                  min="1"
+                  value={tier.maxQuantity}
+                  onChange={(e) =>
+                    updatePricing(
+                      index,
+                      "maxQuantity",
+                      parseInt(e.target.value) || 1
+                    )
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={tier.discount}
+                  onChange={(e) =>
+                    updatePricing(
+                      index,
+                      "discount",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removePricingTier(index)}
+                  disabled={quantityBasedDiscountTier.length <= 1}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Set different price points based on quantity ranges. For example, $10
+          each for 1-9 units, $8.50 each for 10-50 units.
+        </p>
+      </div>
+
+      {/* Pricing Tier */}
+      {/* <div className="space-y-3">
         <div className="flex justify-between items-center">
           <h5 className="text-sm font-medium">Quantity-Based Pricing</h5>
           <Button
@@ -672,7 +797,7 @@ const BasicInfo = ({
           Set different price points based on quantity ranges. For example, $10
           each for 1-9 units, $8.50 each for 10-50 units.
         </p>
-      </div>
+      </div> */}
     </div>
   );
 };

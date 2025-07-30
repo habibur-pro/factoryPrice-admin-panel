@@ -55,12 +55,16 @@ export const AddProduct = () => {
   const [variants, setVariants] = useState<ColorVariant[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [specs, setSpecs] = useState<Array<Specification>>([]);
-  const [pricing, setPricing] = useState<
-    { minQuantity: number; maxQuantity: number; price: number }[]
-  >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
+  // QuantityBasedDiscountTier
+  const [quantityBasedDiscountTier, setQuantityBasedDiscountTier] = useState<
+    { minQuantity: number; maxQuantity: number; discount: number }[]
+  >([{ minQuantity: 10, maxQuantity: 50, discount: 0 }]);
+  // pricing tier
+  // const [pricing, setPricing] = useState<
+  //   { minQuantity: number; maxQuantity: number; price: number }[]
+  // >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
   const [saving, setSaving] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
-
 
   const methods = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -68,7 +72,6 @@ export const AddProduct = () => {
       name: "",
       sku: "",
       category: "",
-      subcategory: "",
       description: "",
       wearHouseNo: "",
       wearHouseLocation: "",
@@ -76,14 +79,15 @@ export const AddProduct = () => {
       variantType: ProductVariantType.NO_VARIANT,
       minOrderQuantity: 1,
       totalQuantity: totalQuantity,
+      basePrice: 0,
     },
   });
   const { errors } = methods.formState;
   console.log(errors);
+
   const onSubmit = async (data: FieldValues) => {
     data.variantType = variantType;
-    console.log("submitted product data", data);
-    console.log("call");
+
     if (tags?.length === 0) {
       toast.error("Tags is required.");
       return;
@@ -116,17 +120,18 @@ export const AddProduct = () => {
         variants,
         tags,
         specs,
-        pricing,
+        quantityBasedDiscountTier,
         totalQuantity: quantityToSubmit,
-        videoURL
+        videoURL,
       };
+
       formData.append("data", JSON.stringify(productData));
       images.forEach((image) => {
         formData.append("productImage", image);
       });
-      // if (videoURL) {
-      //   formData.append("videoURL", videoURL);
-      // }
+      if (videoURL) {
+        formData.append("videoURL", videoURL);
+      }
 
       setSaving(true);
       await addProductMutation(formData).unwrap();
@@ -268,8 +273,10 @@ export const AddProduct = () => {
                     <BasicInfo
                       tags={tags}
                       setTags={setTags}
-                      pricing={pricing}
-                      setPricing={setPricing}
+                      quantityBasedDiscountTier={quantityBasedDiscountTier}
+                      setQuantityBasedDiscountTier={
+                        setQuantityBasedDiscountTier
+                      }
                       variantType={variantType}
                     />
                   </AccordionContent>

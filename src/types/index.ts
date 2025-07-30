@@ -83,7 +83,8 @@ export interface IProduct {
     properties: [{ key: string; value: string }];
   }>;
   basePrice: number;
-  pricing: Array<{ minQuantity: number; maxQuantity: number; price: number }>;
+  quantityBasedDiscountTier: Array<{ minQuantity: number; maxQuantity: number; discount: number }>;
+  // pricing: Array<{ minQuantity: number; maxQuantity: number; price: number }>;
   totalQuantity: number;
   stockQuantity: number;
   minOrderQuantity: number;
