@@ -18,6 +18,7 @@ export interface IDiscount {
 }
 
 export interface ICategory {
+  _id:string;
   id: string;
   categoryName: string;
   slug: string;
