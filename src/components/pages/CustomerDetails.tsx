@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 const CustomerDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [customer, setCustomer] = useState<any | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

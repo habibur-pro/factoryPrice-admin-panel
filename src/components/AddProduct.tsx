@@ -31,6 +31,7 @@ import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import ProductVariants from "./ProductVariants";
 import SpecificationsSection, { Specification } from "./SpecificationsSection";
+
 import { ProductVariantType } from "@/enum";
 interface SizeQuantity {
   size: string;
@@ -48,23 +49,7 @@ export const AddProduct = () => {
     ProductVariantType.NO_VARIANT
   );
 
-  const [addProductMutation] = useAddProductMutation();
   const [totalQuantity, setTotalQuantity] = useState(0);
-  const [images, setImages] = useState<File[]>([]);
-  const [videoURL, setVideoURL] = useState("");
-  const [variants, setVariants] = useState<ColorVariant[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [specs, setSpecs] = useState<Array<Specification>>([]);
-  // QuantityBasedDiscountTier
-  const [quantityBasedDiscountTier, setQuantityBasedDiscountTier] = useState<
-    { minQuantity: number; maxQuantity: number; discount: number }[]
-  >([{ minQuantity: 10, maxQuantity: 50, discount: 0 }]);
-  // pricing tier
-  // const [pricing, setPricing] = useState<
-  //   { minQuantity: number; maxQuantity: number; price: number }[]
-  // >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
-  const [saving, setSaving] = useState(false);
-  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const methods = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -83,15 +68,40 @@ export const AddProduct = () => {
     },
   });
   const { errors } = methods.formState;
-  console.log(errors);
+  const [discountType, setDiscountType] = useState<"price" | "quantity">(
+    "quantity"
+  );
+  const [addProductMutation] = useAddProductMutation();
+  const [images, setImages] = useState<File[]>([]);
+  const [videoURL, setVideoURL] = useState("");
+  const [variants, setVariants] = useState<ColorVariant[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [specs, setSpecs] = useState<Array<Specification>>([]);
+  // QuantityBasedDiscountTier
+  const [quantityBasedDiscountTier, setQuantityBasedDiscountTier] = useState<
+    { minQuantity: number; maxQuantity: number; discount: number }[]
+  >([{ minQuantity: 10, maxQuantity: 50, discount: 0 }]);
+
+  // PriceBasedDiscountTier
+  const [priceBasedDiscountTier, setPriceBasedDiscountTier] = useState<
+    { minPrice: number; maxPrice: number; discount: number }[]
+  >([{ minPrice: 10, maxPrice: 50, discount: 0 }]);
+  // pricing tier
+  // const [pricing, setPricing] = useState<
+  //   { minQuantity: number; maxQuantity: number; price: number }[]
+  // >([{ minQuantity: 10, maxQuantity: 50, price: 0 }]);
+  const [saving, setSaving] = useState(false);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const onSubmit = async (data: FieldValues) => {
     data.variantType = variantType;
+    data.discountType = discountType;
 
     if (tags?.length === 0) {
       toast.error("Tags is required.");
       return;
     }
+    
     // if (pricing?.length === 0) {
     //   toast.error("Pricing is required.");
     //   return;
@@ -109,21 +119,28 @@ export const AddProduct = () => {
       toast.error("Please upload at least one image.");
       return;
     }
+
     try {
       const formData = new FormData();
       const quantityToSubmit =
         variantType === ProductVariantType.DOUBLE_VARIANT
           ? totalQuantity
           : data.totalQuantity;
+
       const productData = {
         ...data,
         variants,
         tags,
         specs,
-        quantityBasedDiscountTier,
         totalQuantity: quantityToSubmit,
+        
         videoURL,
+        ...(discountType === "price"
+          ? { priceBasedDiscountTier }
+          : { quantityBasedDiscountTier }),
       };
+
+      console.log("prodcut data", productData);
 
       formData.append("data", JSON.stringify(productData));
       images.forEach((image) => {
@@ -154,9 +171,9 @@ export const AddProduct = () => {
       images.length > 0 ||
       variants.length > 0 ||
       tags.length > 0 ||
-      specs.length > 0 ||
-      pricing.length > 1 ||
-      pricing[0].price !== 0;
+      specs.length > 0;
+      // pricing.length > 1 ||
+      // pricing[0].price !== 0;
 
     if (isDirty) {
       setShowDiscardDialog(true);
@@ -277,7 +294,11 @@ export const AddProduct = () => {
                       setQuantityBasedDiscountTier={
                         setQuantityBasedDiscountTier
                       }
+                      priceBasedDiscountTier={priceBasedDiscountTier}
+                      setPriceBasedDiscountTier={setPriceBasedDiscountTier}
                       variantType={variantType}
+                      discountType={discountType}
+                      setDiscountType={setDiscountType}
                     />
                   </AccordionContent>
                 </AccordionItem>

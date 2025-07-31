@@ -99,6 +99,21 @@ const ProductDetails: React.FC = () => {
     return { minPrice, maxPrice };
   };
 
+  const getDiscountRange = () => {
+    // Pick the relevant discount tier list based on discountType
+    const tiers =
+      product.discountType === "quantity"
+        ? product.quantityBasedDiscountTier
+        : product.priceBasedDiscountTier;
+
+    if (!tiers || tiers.length === 0) return null;
+
+    const minDiscount = Math.min(...tiers.map((tier) => tier.discount));
+    const maxDiscount = Math.max(...tiers.map((tier) => tier.discount));
+
+    return { minDiscount, maxDiscount };
+  };
+
   // const getPriceRange = () => {
   //   if (product.pricing.length === 0) return null;
   //   const minPrice = Math.min(...product.pricing.map((p) => p.price));
@@ -212,93 +227,112 @@ const ProductDetails: React.FC = () => {
           </Card>
 
           {/* Pricing Tiers */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <DollarSign className="w-5 h-5 mr-2 text-gray-400" />
-                {/* Pricing Tiers */}
-                Discount
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Quantity Range
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        {/* Price per Unit */}
-                        Discount
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Savings
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {product?.quantityBasedDiscountTier?.map((tier, index) => (
-                      <tr key={index}>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {tier.minQuantity} - {tier.maxQuantity} units
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                          % {tier.discount.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm">
-                          <span className="text-green-600">
-                            $
-                            {(
-                             tier.discount * (product.basePrice / 100)
-                            ).toFixed(2)}{" "}
-                            off
-                          </span>
-                        </td>
-                        {/* <td className="px-4 py-4 whitespace-nowrap text-sm">
-                          {index === 0 ? (
-                            <span className="text-gray-500">Base price</span>
-                          ) : (
-                            <span className="text-green-600">
-                              $
-                              {(
-                                product.quantityBasedDiscountTier[0].discount -
-                                tier.discount
-                              ).toFixed(2)}{" "}
-                              off
-                            </span>
-                          )}
-                        </td> */}
-                      </tr>
-                    ))}
-                    {/* {product.pricing.map((tier, index) => (
-                      <tr key={index}>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {tier.minQuantity} - {tier.maxQuantity} units
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                          ${tier.price.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm">
-                          {index === 0 ? (
-                            <span className="text-gray-500">Base price</span>
-                          ) : (
-                            <span className="text-green-600">
-                              $
-                              {(product.pricing[0].price - tier.price).toFixed(
-                                2
-                              )}{" "}
-                              off
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))} */}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          {product.discountType === "price" &&
+            product.priceBasedDiscountTier?.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2 text-gray-400" />
+                    Discount (Price Based)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Price Range
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            {/* Price per Unit */}
+                            Discount
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Savings
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {product?.priceBasedDiscountTier?.map((tier, index) => (
+                          <tr key={index}>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {tier.minPrice} - {tier.maxPrice}
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                              % {tier.discount.toFixed(2)}
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm">
+                              <span className="text-green-600">
+                                $
+                                {(
+                                  tier.discount *
+                                  (product.basePrice / 100)
+                                ).toFixed(2)}{" "}
+                                off
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          {product.discountType === "quantity" &&
+            product.quantityBasedDiscountTier?.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2 text-gray-400" />
+                    Discount (Quantity Based)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Quantity Range
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            {/* Price per Unit */}
+                            Discount
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Savings
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {product?.quantityBasedDiscountTier?.map((tier, index) => (
+                          <tr key={index}>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {tier.minQuantity} - {tier.maxQuantity} units
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                              % {tier.discount.toFixed(2)}
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm">
+                              <span className="text-green-600">
+                                $
+                                {(
+                                  tier.discount *
+                                  (product.basePrice / 100)
+                                ).toFixed(2)}{" "}
+                                off
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Variants */}
           {product.variants && product.variants.length > 0 && (
@@ -466,15 +500,14 @@ const ProductDetails: React.FC = () => {
                   ${product.basePrice.toFixed(2)}
                 </p>
               </div>
-              {getPriceRange() && (
+              {getDiscountRange() && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {/* Price Range */}
                     Discount Range
                   </label>
                   <p className="text-sm text-gray-900">
-                    % {getPriceRange()!.minPrice.toFixed(2)} - %
-                    {getPriceRange()!.maxPrice.toFixed(2)}
+                    % {getDiscountRange()!.minDiscount.toFixed(2)} - %{" "}
+                    {getDiscountRange()!.maxDiscount.toFixed(2)}
                   </p>
                 </div>
               )}
