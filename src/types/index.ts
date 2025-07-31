@@ -18,7 +18,7 @@ export interface IDiscount {
 }
 
 export interface ICategory {
-  _id:string;
+  _id: string;
   id: string;
   categoryName: string;
   slug: string;
@@ -73,8 +73,8 @@ export interface IProduct {
   sku: string;
   title: string;
   description?: string;
-  wearHouseNo:string;
-  wearHouseLocation:string;
+  wearHouseNo: string;
+  wearHouseLocation: string;
   slug?: string;
   category: ICategory;
   variants: Array<IVariant>;
@@ -83,7 +83,18 @@ export interface IProduct {
     properties: [{ key: string; value: string }];
   }>;
   basePrice: number;
-  pricing: Array<{ minQuantity: number; maxQuantity: number; price: number }>;
+  discountType: "price" | "quantity";
+  quantityBasedDiscountTier: Array<{
+    minQuantity: number;
+    maxQuantity: number;
+    discount: number;
+  }>;
+  priceBasedDiscountTier: Array<{
+    minPrice: number;
+    maxPrice: number;
+    discount: number;
+  }>;
+  // pricing: Array<{ minQuantity: number; maxQuantity: number; price: number }>;
   totalQuantity: number;
   stockQuantity: number;
   minOrderQuantity: number;
@@ -136,7 +147,7 @@ export interface IShippingAddress {
   user: IUser;
   country: string;
   fullName: string;
-  email:string;
+  email: string;
   phoneNumber: string;
   dialCode: string;
   streetAddress: string;
@@ -249,9 +260,9 @@ export interface IChatSession {
   senderId: string;
   senderName: string;
   senderPhone: string;
-  senderCountryCode:string;
-  senderCountry:string;
-  senderEmail:string;
+  senderCountryCode: string;
+  senderCountry: string;
+  senderEmail: string;
   lastMessage: string;
   lastMessageTime: Date;
   unreadCount: number;
