@@ -92,7 +92,8 @@ const Products: React.FC = () => {
             </div>
           )}
           <div className="text-slate-600 text-xs">
-            <span className="font-semibold">{product?.wearHouseLocation}</span>,{product?.wearHouseNo} 
+            <span className="font-semibold">{product?.wearHouseLocation}</span>,
+            {product?.wearHouseNo}
           </div>
         </div>
       ),
@@ -103,10 +104,10 @@ const Products: React.FC = () => {
       render: (value, product) => (
         <div className="text-sm">
           <div className="font-medium">${value.toFixed(2)}</div>
-          {product.pricing.length > 0 && (
+          {product?.quantityBasedDiscountTier?.length > 0 && (
             <div className="text-gray-500 text-xs">
-              ${Math.min(...product.pricing.map((p) => p.price)).toFixed(2)} - $
-              {Math.max(...product.pricing.map((p) => p.price)).toFixed(2)}
+              % {Math.min(...product.quantityBasedDiscountTier.map((p) => p.discount)).toFixed(2)} - % 
+              {Math.max(...product.quantityBasedDiscountTier.map((p) => p.discount)).toFixed(2)}
             </div>
           )}
           {product.discount && (
@@ -117,6 +118,26 @@ const Products: React.FC = () => {
         </div>
       ),
     },
+    // {
+    //   key: "basePrice",
+    //   label: "Base Price",
+    //   render: (value, product) => (
+    //     <div className="text-sm">
+    //       <div className="font-medium">${value.toFixed(2)}</div>
+    //       {product.pricing.length > 0 && (
+    //         <div className="text-gray-500 text-xs">
+    //           ${Math.min(...product.pricing.map((p) => p.price)).toFixed(2)} - $
+    //           {Math.max(...product.pricing.map((p) => p.price)).toFixed(2)}
+    //         </div>
+    //       )}
+    //       {product.discount && (
+    //         <div className="text-red-500 text-xs">
+    //           -{product.discount.percentage}% off
+    //         </div>
+    //       )}
+    //     </div>
+    //   ),
+    // },
     {
       key: "status",
       label: "Status",

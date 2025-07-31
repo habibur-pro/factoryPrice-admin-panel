@@ -93,7 +93,7 @@ const demoUsers: User[] = [
   },
 ];
 
-const demoProducts: Product[] = [
+const demoProducts = [
   {
     _id: "674a1b2c3d4e5f6789012350",
     id: "PROD001",
@@ -175,7 +175,7 @@ const demoShippingAddresses: ShippingAddress[] = [
   },
 ];
 
-const demoOrderItems: OrderItem[] = [
+const demoOrderItems= [
   {
     _id: "item1",
     id: "OI001",
@@ -224,7 +224,7 @@ const demoOrderItems: OrderItem[] = [
   },
 ];
 
-const demoOrders: Order[] = [
+const demoOrders = [
   {
     _id: "674a1b2c3d4e5f6789012355",
     id: "ORD001",
@@ -375,7 +375,7 @@ class ApiClient {
     }
   }
 
-  async getCustomerOrders(id: string): Promise<Order[]> {
+  async getCustomerOrders(id: string) {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     return demoOrders.filter((order) => order.userId === id);
@@ -470,7 +470,7 @@ class ApiClient {
   }
 
   // Orders API
-  async getOrder(id: string): Promise<Order> {
+  async getOrder(id: string) {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const order = demoOrders.find((order) => order._id === id);
@@ -486,7 +486,7 @@ class ApiClient {
       limit?: number;
       status?: string;
     } = {}
-  ): Promise<PaginationResponse<Order>> {
+  ) {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     let filteredOrders = [...demoOrders];

@@ -21,8 +21,13 @@ export interface User {
 export interface PriceRange {
   minQuantity: number;
   maxQuantity: number;
-  price: number;
+  discount: number;
 }
+// export interface PriceRange {
+//   minQuantity: number;
+//   maxQuantity: number;
+//   price: number;
+// }
 
 export interface Size {
   size: string;
@@ -69,7 +74,8 @@ export interface Product {
   minOrderQuantity: number;
   images: string[];
   basePrice: number;
-  pricing: PriceRange[];
+  quantityBasedDiscountTier: PriceRange[];
+  // pricing: PriceRange[];
   status: "active" | "inactive" | "out_of_stock";
   createdAt: string;
   updatedAt: string;
