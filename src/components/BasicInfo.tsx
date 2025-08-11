@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAddSubcategoryMutation } from "@/redux/api/subcategoryApi";
 import { FileText, Plus, X } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
@@ -38,21 +38,21 @@ interface IQuantityBasedDiscountTier {
 }
 
 // PriceBasedDiscountTierType
-interface IPriceBasedDiscountTier {
-  minPrice: number;
-  maxPrice: number;
-  discount: number;
-}
+// interface IPriceBasedDiscountTier {
+//   minPrice: number;
+//   maxPrice: number;
+//   discount: number;
+// }
 
 interface BasicInfoProps {
   quantityBasedDiscountTier: IQuantityBasedDiscountTier[];
   setQuantityBasedDiscountTier: React.Dispatch<
     React.SetStateAction<IQuantityBasedDiscountTier[]>
   >;
-  priceBasedDiscountTier: IPriceBasedDiscountTier[];
-  setPriceBasedDiscountTier: React.Dispatch<
-    React.SetStateAction<IPriceBasedDiscountTier[]>
-  >;
+  // priceBasedDiscountTier: IPriceBasedDiscountTier[];
+  // setPriceBasedDiscountTier: React.Dispatch<
+  //   React.SetStateAction<IPriceBasedDiscountTier[]>
+  // >;
   tags: string[];
   setTags: React.Dispatch<React.SetStateAction<string[]>>;
   variantType: ProductVariantType;
@@ -63,8 +63,8 @@ interface BasicInfoProps {
 const BasicInfo = ({
   quantityBasedDiscountTier,
   setQuantityBasedDiscountTier,
-  priceBasedDiscountTier,
-  setPriceBasedDiscountTier,
+  // priceBasedDiscountTier,
+  // setPriceBasedDiscountTier,
   tags,
   setTags,
   variantType,
@@ -295,229 +295,7 @@ const BasicInfo = ({
           )}
         />
 
-        {/* <FormField
-          control={control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <div className="flex gap-2">
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select product category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories?.length &&
-                      categories.map((category: ICategory) => (
-                        <SelectItem
-                          className="capitalize"
-                          key={category.categoryName}
-                          value={category.categoryName}
-                        >
-                          {category.categoryName}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
 
-                <Dialog
-                  open={categoryDialogOpen}
-                  onOpenChange={setCategoryDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Category</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div>
-                        <Label htmlFor="category-name">Category Name</Label>
-                        <Input
-                          id="category-name"
-                          placeholder="Enter category name"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                          className="mt-2"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="category-icon">Category Icon</Label>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Input
-                            id="category-icon"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) setNewCategoryIcon(file);
-                            }}
-                          />
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-muted-foreground"
-                            onClick={() =>
-                              document.getElementById("category-icon")?.click()
-                            }
-                          >
-                            <Upload className="mr-2 h-4 w-4" />
-                            {newCategoryIcon
-                              ? newCategoryIcon.name
-                              : "Upload icon"}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setCategoryDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleAddCategory}
-                        disabled={!newCategoryName}
-                      >
-                        Add Category
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
-        {/* <FormField
-          control={control}
-          name="subcategory"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Subcategory</FormLabel>
-              <div className="flex gap-2">
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={!selectedCategory}
-                >
-                  <FormControl>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue
-                        placeholder={
-                          selectedCategory
-                            ? "Select subcategory"
-                            : "Select a category first"
-                        }
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {subcategories?.length &&
-                      subcategories.map((subcategory: ISubcategory) => (
-                        <SelectItem
-                          className="capitalize"
-                          key={subcategory.categoryName}
-                          value={subcategory.categoryName}
-                        >
-                          {subcategory.categoryName}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-
-                <Dialog
-                  open={subcategoryDialogOpen}
-                  onOpenChange={setSubcategoryDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      disabled={!selectedCategory}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Subcategory</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div>
-                        <Label htmlFor="subcategory-name">
-                          Subcategory Name
-                        </Label>
-                        <Input
-                          id="subcategory-name"
-                          placeholder="Enter subcategory name"
-                          value={newSubcategoryName}
-                          onChange={(e) =>
-                            setNewSubcategoryName(e.target.value)
-                          }
-                          className="mt-2"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="subcategory-icon">
-                          Subcategory Icon
-                        </Label>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Input
-                            id="subcategory-icon"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) setNewSubcategoryIcon(file);
-                            }}
-                          />
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-muted-foreground"
-                            onClick={() =>
-                              document
-                                .getElementById("subcategory-icon")
-                                ?.click()
-                            }
-                          >
-                            <Upload className="mr-2 h-4 w-4" />
-                            {newSubcategoryIcon
-                              ? newSubcategoryIcon.name
-                              : "Upload icon"}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setSubcategoryDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleAddSubcategory}
-                        disabled={!newSubcategoryName}
-                      >
-                        Add Subcategory
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
       </div>
 
       <div className="space-y-4">
@@ -641,7 +419,7 @@ const BasicInfo = ({
       </div>
 
       {/* Radio for select Discount Type */}
-      <div className="space-y-2">
+       <div className="space-y-2">
         <FormLabel className="block">Discount Type</FormLabel>
         <div className="flex gap-6">
           <label className="flex items-center gap-2">
@@ -654,7 +432,7 @@ const BasicInfo = ({
             />
             Quantity-Based
           </label>
-          <label className="flex items-center gap-2">
+          {/* <label className="flex items-center gap-2">
             <input
               type="radio"
               name="discountType"
@@ -663,7 +441,7 @@ const BasicInfo = ({
               onChange={() => setDiscountType("price")}
             />
             Price-Based
-          </label>
+          </label> */}
         </div>
       </div>
 
@@ -749,7 +527,7 @@ const BasicInfo = ({
         </div>
       )}
 
-      {discountType === "price" && (
+      {/* {discountType === "price" && (
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <h5 className="text-sm font-medium">Price-Based Discount</h5>
@@ -838,10 +616,10 @@ const BasicInfo = ({
             ))}
           </div>
         </div>
-      )}
+      )}  */}
 
       {/* Discount by Quantity Tier */}
-      {/* <div className="space-y-3">
+     {/* <div className="space-y-3">
         <div className="flex justify-between items-center">
           <h5 className="text-sm font-medium">Quantity-Based Discount</h5>
           <Button
@@ -935,7 +713,7 @@ const BasicInfo = ({
           Set different price points based on quantity ranges. For example, $10
           each for 1-9 units, $8.50 each for 10-50 units.
         </p>
-      </div> */}
+      </div>  */}
 
       {/* Discount by Pricing Tier */}
       {/* <div className="space-y-3">

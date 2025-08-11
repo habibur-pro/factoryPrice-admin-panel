@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { roleBasedRedirects } from "@/const";
+import { UserRole } from "@/enum";
 import { useVerifyAdminSignInMutation } from "@/redux/api/authApi";
 import { signinSchema } from "@/validation/authValidation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -36,13 +38,24 @@ const Signin = () => {
   const onSubmit = async (data: FieldValues) => {
     try {
       const result = await verifySignin(data).unwrap();
-      console.log("result", result);
-      await signIn("credentials", {
+      const signInResult = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        callbackUrl: `/`,
-        redirect: true,
+        redirect: false,
       });
+      if (signInResult?.ok) {
+        // Now fetch the session, which includes user info like role
+        const session = await getSession();
+        console.log("session",session)
+        const userRole = session?.user?.role as UserRole;
+
+        // Map role to redirect path
+        const redirectUrl = roleBasedRedirects[userRole];
+
+        
+        // Redirect manually
+        window.location.href = redirectUrl;
+      }
     } catch (error: any) {
       console.log(error);
       toast.error(

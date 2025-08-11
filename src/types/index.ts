@@ -3,6 +3,7 @@ import {
   OrderStatus,
   PaymentStatus,
   ProductStatus,
+  ProductVariantType,
 } from "@/enum";
 
 export interface IDiscount {
@@ -103,6 +104,7 @@ export interface IProduct {
   discount?: IDiscount;
   status: ProductStatus;
   videoURL?: string;
+  variantType:ProductVariantType
   createdAt: Date;
   updatedAt: Date;
 }

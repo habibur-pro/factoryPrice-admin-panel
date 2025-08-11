@@ -1,3 +1,5 @@
+import { DiscountStatus } from "@/enum";
+
 export interface User {
   _id: string;
   firstName: string;
@@ -49,11 +51,13 @@ export interface Subcategory {
   slug: string;
 }
 
-export interface Discount {
+export interface IDiscount {
   _id: string;
-  percentage: number;
-  validUntil: string;
-  type: string;
+  id:string;
+  discountValue: number;
+  startDate: Date;
+  endDate: Date;
+  status: DiscountStatus;
 }
 
 export interface Product {
@@ -68,7 +72,7 @@ export interface Product {
   title: string;
   variants: Variant[];
   discountId?: string;
-  discount?: Discount;
+  discount?: IDiscount;
   totalQuantity: number;
   stockQuantity: number;
   minOrderQuantity: number;

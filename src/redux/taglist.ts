@@ -10,6 +10,7 @@ export enum tagTypes {
   CHAT = "chat",
   REPORT = "report",
   PAYMENT = "payment",
+  DISCOUNT = "discount",
 }
 
 // Automatically derive the list from the enum

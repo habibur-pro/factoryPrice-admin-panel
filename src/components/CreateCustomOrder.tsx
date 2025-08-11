@@ -11,9 +11,11 @@ import ProductPicker from "./ProductPicker";
 import ShippingAddressForm from "./ShippingAddressForm";
 import PaymentOptions from "./PaymentOptions";
 import LiveSummary from "./LiveSummary";
-import OrderReviewPanel from "./OrderPreviewPanel";
 import { usePlaceCustomOrderMutation } from "@/redux/api/orderApi";
 import { useRouter } from "next/navigation";
+import { useCustomerOrderLinkMutation } from "@/redux/api/customerOrderLinkApi";
+import { ProductVariantType } from "@/enum";
+import OrderReviewPanel from "./OrderPreviewPanel";
 
 export interface OrderItem {
   id: string;
@@ -52,7 +54,9 @@ export interface PaymentData {
 
 export const CreateCustomOrder = () => {
   const router = useRouter();
-  const [placeCustomOrder] = usePlaceCustomOrderMutation();
+  // const [placeCustomOrder] = usePlaceCustomOrderMutation();
+  const[variantType,setVariantType] =useState<ProductVariantType>(ProductVariantType.DOUBLE_VARIANT)
+  const [customOrderLink] = useCustomerOrderLinkMutation()
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [paymentRefImage, setPaymentRefImage] = useState<string | null>(null);
@@ -79,12 +83,11 @@ export const CreateCustomOrder = () => {
     0
   );
   const total = subtotal - discount + shippingCharge;
-
   const handleCreateOrder = async () => {
-    if (!selectedUser) {
-      toast.error("Please select a user for this order");
-      return;
-    }
+    // if (!selectedUser) {
+    //   toast.error("Please select a user for this order");
+    //   return;
+    // }
     if (orderItems.length === 0) {
       toast.error("Please add at least one product to the order");
       return;
@@ -95,36 +98,26 @@ export const CreateCustomOrder = () => {
     }
 
     // Here you would typically send the order data to your backend
-    console.log("Creating order:", {
-      user: selectedUser,
-      items: orderItems,
-      shippingAddress,
-      payment: paymentData,
-      subtotal,
-      discount,
-      shippingCharge,
-      total,
-      totalQuantity,
-    });
-
-    const items = orderItems.map((item) => {
+    const items = orderItems?.map((item) => {
       return {
-        productId: item.id,
-        itemVariants: item.variants,
-        totalQuantity: item.totalQuantity,
-        perUnitPrice: item.perUnitPrice,
-        totalPrice: item.totalPrice,
-        productName: item.productName,
-        productSlug: item.slug,
+        image:item?.images[0],
+        perUnitPrice: item?.perUnitPrice,
+        productId: item?.id,
+        productName: item?.productName,
+        productQuantity: item?.totalQuantity,
+        productVariants: item?.variants,
+        totalProductPrice: item?.totalPrice,
+        variantType:item?.variantType
       };
     });
     const orderPayload = {
-      userId: selectedUser.id,
+      // userId: selectedUser.id,
       subtotal,
       discount,
       shippingCharge,
       total,
       items,
+      totalQuantity
     };
 
     const paymentsD = {
@@ -137,11 +130,12 @@ export const CreateCustomOrder = () => {
     };
     const payload = {
       orderPayload,
-      paymentData: paymentsD,
+      // paymentData: paymentsD,
       shipping: shippingAddress,
     };
+    console.log("payload ",payload)
     try {
-      await placeCustomOrder(payload).unwrap();
+      const response = await customOrderLink(payload).unwrap();
       toast.success(
         "🎉 Order created successfully! Customer will be notified shortly.",
         {
@@ -181,7 +175,7 @@ export const CreateCustomOrder = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* User Selection */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 👤 Select Customer
@@ -193,7 +187,7 @@ export const CreateCustomOrder = () => {
                 onUserSelect={setSelectedUser}
               />
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Product Selection */}
           <Card>
@@ -206,6 +200,7 @@ export const CreateCustomOrder = () => {
               <ProductPicker
                 orderItems={orderItems}
                 onItemsChange={setOrderItems}
+                setVariantType={setVariantType}
               />
             </CardContent>
           </Card>
@@ -227,7 +222,7 @@ export const CreateCustomOrder = () => {
           </Card>
 
           {/* Payment Options */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 💳 Payment Method
@@ -240,7 +235,7 @@ export const CreateCustomOrder = () => {
                 setPaymentRefImage={setPaymentRefImage}
               />
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Sidebar */}
