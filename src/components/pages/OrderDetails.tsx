@@ -1,5 +1,6 @@
 "use client";
 import {
+  AlertCircle,
   ArrowUp,
   CreditCard,
   ListChecks,
@@ -10,7 +11,7 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 
-import { OrderStatus, PaymentStatus } from "@/enum";
+import { OrderStatus, PaymentStatus, UserRole } from "@/enum";
 import {
   useGetOrderQuery,
   useGetTimeLinesQuery,
@@ -33,15 +34,18 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { getSession, useSession } from "next-auth/react";
 
 const OrderDetails: React.FC = () => {
+  const session = useSession();
+  const userRole = session?.data?.user?.role as UserRole;
   const { id } = useParams<{ id: string }>();
   const [updateOrder] = useUpdateOrderMutation();
   const [updatePayment] = useUpdatePaymentMutation();
   // const [order, setOrder] = useState<Order | null>(null);
   const { data: orderRes, isLoading } = useGetOrderQuery(id, { skip: !id });
   const order: IOrder = orderRes?.data;
-  console.log("order from order details",order)
+  console.log("order from order details", order);
   const { data: timelineRes } = useGetTimeLinesQuery(order?.id, {
     skip: !order?.id,
   });
@@ -72,11 +76,6 @@ const OrderDetails: React.FC = () => {
   };
 
   const handleUpdatePayment = async () => {
-    // console.log("Updating payment:", {
-    //   orderId: order.id,
-    //   paymentStatus,
-    //   refundAmount,
-    // });
     const data = {
       id: order.id,
       payload: {
@@ -342,115 +341,161 @@ const OrderDetails: React.FC = () => {
               )}
             </div>
           </div>
-          {/* order management  */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center">
-                <PackageCheck className="w-5 h-5 mr-2 text-gray-400" />
-                <h2 className="text-lg font-semibold">Order Management</h2>
-              </div>
-            </div>
-            <div className="space-y-4 p-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Order Status
-                  </label>
-                  <Select value={orderStatus} onValueChange={setOrderStatus}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                      <SelectItem value="failed">Failed</SelectItem>
-                      <SelectItem value="refunded">Refunded</SelectItem>
-                    </SelectContent>
-                  </Select>
+
+          {order?.payment?.status === PaymentStatus.paid ? (
+            <>
+              {/* order management  */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 border-b">
+                  <div className="flex items-center">
+                    <PackageCheck className="w-5 h-5 mr-2 text-gray-400" />
+                    <h2 className="text-lg font-semibold">Order Management</h2>
+                  </div>
+                </div>
+                <div className="space-y-4 p-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Order Status
+                      </label>
+                      <Select
+                        value={orderStatus}
+                        onValueChange={setOrderStatus}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="processing">Processing</SelectItem>
+                          <SelectItem value="shipped">Shipped</SelectItem>
+                          <SelectItem value="delivered">Delivered</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="failed">Failed</SelectItem>
+                          <SelectItem value="refunded">Refunded</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Internal Notes
+                    </label>
+                    <Textarea
+                      placeholder="Add internal notes about this order..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+
+                  <Button onClick={handleUpdateOrder} className="w-full">
+                    Update Order
+                  </Button>
                 </div>
               </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Internal Notes
-                </label>
-                <Textarea
-                  placeholder="Add internal notes about this order..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="min-h-[100px]"
+            </>
+          ) : (
+            <div className="flex items-start gap-3 rounded-md border border-red-200 bg-red-50 p-4">
+              {/* Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 
+         1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 
+         0L4.34 16c-.77 1.333.192 3 1.732 3z"
                 />
-              </div>
+              </svg>
 
-              <Button onClick={handleUpdateOrder} className="w-full">
-                Update Order
-              </Button>
+              {/* Text */}
+              <div>
+                <h3 className="font-semibold text-red-800">Payment Pending</h3>
+                <p className="mt-1 text-sm text-red-700">
+                  This order has not been successfully paid yet. Please wait for
+                  payment confirmation before proceeding with shipping or order
+                  updates.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Payment Management */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center">
-                <CreditCard className="w-5 h-5 mr-2 text-gray-400" />
-                <h2 className="text-lg font-semibold">Payment Management</h2>
-              </div>
-            </div>
-            <div className="space-y-4 p-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Payment Status
-                  </label>
-                  <Select
-                    value={paymentStatus}
-                    onValueChange={setPaymentStatus}
-                    defaultValue={order.paymentStatus}
-                    
+          {userRole !== UserRole.shipping && (
+            <>
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 border-b">
+                  <div className="flex items-center">
+                    <CreditCard className="w-5 h-5 mr-2 text-gray-400" />
+                    <h2 className="text-lg font-semibold">
+                      Payment Management
+                    </h2>
+                  </div>
+                </div>
+                <div className="space-y-4 p-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Payment Status
+                      </label>
+                      <Select
+                        value={paymentStatus}
+                        onValueChange={setPaymentStatus}
+                        defaultValue={order.paymentStatus}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            defaultValue={order.paymentStatus}
+                            placeholder="Select payment status"
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="unpaid">Unpaid</SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Transaction Id (optional)
+                      </label>
+                      <Input
+                        placeholder="Enter transaction id"
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Details
+                    </label>
+                    <Textarea
+                      placeholder="add a details..."
+                      value={paymentDetails}
+                      onChange={(e) => setPaymentDetails(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleUpdatePayment}
+                    className="w-full bg-primary text-white"
+                    variant="outline"
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue defaultValue={order.paymentStatus} placeholder="Select payment status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="unpaid">Unpaid</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Transaction Id (optional)
-                  </label>
-                  <Input
-                    placeholder="Enter transaction id"
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                  />
+                    Update Payment
+                  </Button>
                 </div>
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Details
-                </label>
-                <Textarea
-                  placeholder="add a details..."
-                  value={paymentDetails}
-                  onChange={(e) => setPaymentDetails(e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
-              <Button
-                onClick={handleUpdatePayment}
-                className="w-full hover:bg-primary hover:text-white"
-                variant="outline"
-              >
-                Update Payment
-              </Button>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Sidebar */}

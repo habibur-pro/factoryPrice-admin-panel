@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { UserRole } from "@/enum";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -43,6 +44,7 @@ export const authOption: NextAuthOptions = {
         token.email = user.email;
         token.photo = user.photo;
         token.accessToken = user.accessToken;
+        token.role=user.role;
       }
       if (trigger === "update" && session) {
         return { ...token, ...session };
@@ -56,6 +58,7 @@ export const authOption: NextAuthOptions = {
         session.user.photo = token.photo as string;
         session.user.name = token.name as string;
         session.user.accessToken = token.accessToken as string;
+        session.user.role=token.role as UserRole
       }
       return session;
     },

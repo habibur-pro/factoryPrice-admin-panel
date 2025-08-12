@@ -14,6 +14,18 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: [tagTypes.USER],
     }),
 
+    updateUser: build.mutation({
+      query: (userData) => {
+        console.log("user data", userData);
+        return {
+          url: `${ENDPOINT}/update-profile/${userData.id}`,
+          method: "PATCH",
+          body: userData,
+        };
+      },
+      invalidatesTags: [tagTypes.USER],
+    }),
+
     getUserById: build.query({
       query: (id?: any) => ({
         url: `${ENDPOINT}/${id}`,
@@ -46,4 +58,5 @@ export const {
   useGetAddressesQuery,
   useGetAllUserQuery,
   useGetUserByIdQuery,
+  useUpdateUserMutation,
 } = userApi;
