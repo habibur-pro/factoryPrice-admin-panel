@@ -25,9 +25,9 @@ export const authApi = baseApi.injectEndpoints({
     }),
     // change password api endpoint
     changePassword: build.mutation({
-      query: ({ userId, ...data }) => ({
-        url: `/auth/change-password/${userId}`,
-        method: "PATCH",
+      query: (data ) => ({
+        url: `/auth/change-password`,
+        method: "POST",
         body: data,
       }),
       invalidatesTags: [tagTypes.AUTH],

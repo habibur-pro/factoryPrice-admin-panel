@@ -2,11 +2,11 @@ import { UserRole } from "@/enum";
 
 // permissions.ts
 export const rolePermissions: Record<string, string[]> = {
-    sales: ["/", "/products", "/orders", "/discount", "/query"],
-    accounts: ["/", "/accounts", "/payments", "/query"],
-    shipping: ["/","/orders", "/orders/*", "/query"],
-    super_admin: ["*"], // * means all paths allowed
-    admin: ["/","/orders","/products","/query","/payments"] // * means all paths allowed
+    sales: ["/", "/products", "/orders", "/discount", "/query","/change-password"],
+    accounts: ["/", "/accounts", "/payments", "/query","/change-password"],
+    shipping: ["/","/orders", "/orders/*", "/query","/change-password"],
+    admin: ["/","/orders","/products","/query","/payments","/permission-management","/change-password","/discounts"], // * means all paths allowed
+    super_admin: ["/","/orders","/products","/query","/payments","/permission-management","/change-password","/discounts"] // * means all paths allowed
   };
 
   export const roleBasedRedirects: Record<UserRole, string> = {

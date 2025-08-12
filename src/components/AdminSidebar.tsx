@@ -17,7 +17,8 @@ import {
   MessageCircle,
   FileQuestion,
   BadgePercent,
-  Shield
+  Shield,
+  Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ const navItems: NavItem[] = [
   // { icon: Archive, label: "Inventory", path: "/inventory" },
   { icon: FileQuestion, label: "New Leads", path: "/query" },
   { icon: Shield, label: "Permission Management", path: "/permission-management" },
+  { icon: Lock, label: "Change Password", path: "/change-password" },
   // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
   // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];

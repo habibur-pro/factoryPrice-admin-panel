@@ -4,6 +4,7 @@ import {
   PaymentStatus,
   ProductStatus,
   ProductVariantType,
+  UserRole,
 } from "@/enum";
 
 export interface IDiscount {
@@ -131,15 +132,9 @@ export interface IUser {
   companyName: string;
   address: string;
   status: "active" | "inactive";
-  role: IRole;
+  role: UserRole;
   photo?: string;
   isEmailVerified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface IRole {
-  id: string;
-  roleName: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -318,3 +313,5 @@ export interface IChatProduct {
   slug: string;
   sku: string;
 }
+
+
