@@ -34,3 +34,11 @@ export enum ProductVariantType {
   NO_VARIANT = "no_variant",
   DOUBLE_VARIANT = "double_variant",
 }
+
+export enum UserRole {
+  admin = "admin",
+  super_admin = "super_admin",
+  sales_marketting = "sales_marketting",
+  shipping = "shipping",
+  accounts = "accounts",
+}

@@ -65,27 +65,30 @@ export const AddProduct = () => {
       minOrderQuantity: 1,
       totalQuantity: totalQuantity,
       basePrice: 0,
+      discountValue: 0,
+      startDate: '',
+      endDate: ''
     },
   });
   const { errors } = methods.formState;
-  const [discountType, setDiscountType] = useState<"price" | "quantity">(
-    "quantity"
-  );
   const [addProductMutation] = useAddProductMutation();
   const [images, setImages] = useState<File[]>([]);
   const [videoURL, setVideoURL] = useState("");
   const [variants, setVariants] = useState<ColorVariant[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [specs, setSpecs] = useState<Array<Specification>>([]);
+  const [discountType, setDiscountType] = useState<"price" | "quantity">(
+    "quantity"
+  );
   // QuantityBasedDiscountTier
   const [quantityBasedDiscountTier, setQuantityBasedDiscountTier] = useState<
     { minQuantity: number; maxQuantity: number; discount: number }[]
   >([{ minQuantity: 10, maxQuantity: 50, discount: 0 }]);
+ // PriceBasedDiscountTier
+//  const [priceBasedDiscountTier, setPriceBasedDiscountTier] = useState<
+//  { minPrice: number; maxPrice: number; discount: number }[]
+// >([{ minPrice: 10, maxPrice: 50, discount: 0 }]);
 
-  // PriceBasedDiscountTier
-  const [priceBasedDiscountTier, setPriceBasedDiscountTier] = useState<
-    { minPrice: number; maxPrice: number; discount: number }[]
-  >([{ minPrice: 10, maxPrice: 50, discount: 0 }]);
   // pricing tier
   // const [pricing, setPricing] = useState<
   //   { minQuantity: number; maxQuantity: number; price: number }[]
@@ -95,13 +98,12 @@ export const AddProduct = () => {
 
   const onSubmit = async (data: FieldValues) => {
     data.variantType = variantType;
-    data.discountType = discountType;
 
     if (tags?.length === 0) {
       toast.error("Tags is required.");
       return;
     }
-    
+
     // if (pricing?.length === 0) {
     //   toast.error("Pricing is required.");
     //   return;
@@ -133,11 +135,7 @@ export const AddProduct = () => {
         tags,
         specs,
         totalQuantity: quantityToSubmit,
-        
-        videoURL,
-        ...(discountType === "price"
-          ? { priceBasedDiscountTier }
-          : { quantityBasedDiscountTier }),
+        videoURL
       };
 
       console.log("prodcut data", productData);
@@ -172,8 +170,8 @@ export const AddProduct = () => {
       variants.length > 0 ||
       tags.length > 0 ||
       specs.length > 0;
-      // pricing.length > 1 ||
-      // pricing[0].price !== 0;
+    // pricing.length > 1 ||
+    // pricing[0].price !== 0;
 
     if (isDirty) {
       setShowDiscardDialog(true);
@@ -290,13 +288,11 @@ export const AddProduct = () => {
                     <BasicInfo
                       tags={tags}
                       setTags={setTags}
+                      variantType={variantType}
                       quantityBasedDiscountTier={quantityBasedDiscountTier}
                       setQuantityBasedDiscountTier={
                         setQuantityBasedDiscountTier
                       }
-                      priceBasedDiscountTier={priceBasedDiscountTier}
-                      setPriceBasedDiscountTier={setPriceBasedDiscountTier}
-                      variantType={variantType}
                       discountType={discountType}
                       setDiscountType={setDiscountType}
                     />
@@ -350,17 +346,18 @@ export const AddProduct = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* <AccordionItem
+                <AccordionItem
                   value="promotions"
-                  className="border rounded-lg p-1 mt-4"
+                  className="border rounded-lg p-1 mt-4 mb-8"
                 >
                   <AccordionTrigger className="px-4">
-                    Promotions & Offers
+                    {/* Promotions & Offers */}
+                    Discount
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pt-2">
                     <PromotionsSection />
                   </AccordionContent>
-                </AccordionItem> */}
+                </AccordionItem>
               </Accordion>
             </div>
 

@@ -197,6 +197,15 @@ const ShippingAddressForm = ({
             />
           </div>
         </div>
+        {/* Email */}
+        <div className="space-y-2">
+          <Label htmlFor="email">Email *</Label>
+          <Input
+            placeholder="Enter recipient's email address"
+            value={address.email || ""}
+            onChange={(e) => updateField("email", e.target.value)}
+          />
+        </div>
 
         <div className=" space-y-2">
           <Label className="flex items-center gap-2">

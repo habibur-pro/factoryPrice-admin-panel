@@ -21,6 +21,9 @@ export const productSchema = z.object({
     ProductVariantType.NO_VARIANT,
     ProductVariantType.DOUBLE_VARIANT,
   ]),
+  discountValue: z.number().positive({message:"Discount must be postive"}).optional(),
+  startDate: z.string().optional(),
+endDate: z.string().optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;

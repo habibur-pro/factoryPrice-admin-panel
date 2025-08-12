@@ -16,6 +16,7 @@ import {
   FileText,
 } from "lucide-react";
 import { OrderItem, PaymentData, ShippingAddress } from "./CreateCustomOrder";
+import { ProductVariantType } from "@/enum";
 
 interface OrderReviewPanelProps {
   selectedUser: any;
@@ -41,10 +42,10 @@ const OrderReviewPanel = ({
   const [isOpen, setIsOpen] = React.useState(false);
 
   const completionStatus = {
-    user: !!selectedUser,
+    // user: !!selectedUser,
     items: orderItems.length > 0,
     shipping: !!(shippingAddress.fullName && shippingAddress.streetAddress),
-    payment: !!paymentData.method,
+    // payment: !!paymentData.method,
   };
 
   const completedSteps = Object.values(completionStatus).filter(Boolean).length;
@@ -69,9 +70,8 @@ const OrderReviewPanel = ({
                   {completedSteps}/{totalSteps} Complete
                 </Badge>
                 <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""
+                    }`}
                 />
               </div>
             </CardTitle>
@@ -81,7 +81,7 @@ const OrderReviewPanel = ({
         <CollapsibleContent>
           <CardContent className="space-y-4">
             {/* Customer Section */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span className="font-medium">Customer</span>
@@ -102,7 +102,7 @@ const OrderReviewPanel = ({
                   No customer selected
                 </p>
               )}
-            </div>
+            </div> */}
 
             <Separator />
 
@@ -127,13 +127,13 @@ const OrderReviewPanel = ({
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium">{item.productName}</p>
-                          <p className="text-gray-600">
+                          {item?.variantType === ProductVariantType.DOUBLE_VARIANT && <p className="text-gray-600">
                             {item.variants[0].color} • {item.totalQuantity}{" "}
                             items
-                          </p>
+                          </p>}
                         </div>
                         <span className="font-medium">
-                          ${item.totalPrice.toFixed(2)}
+                          ${item?.totalPrice.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -182,7 +182,7 @@ const OrderReviewPanel = ({
             <Separator />
 
             {/* Payment Section */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 <span className="font-medium">Payment</span>
@@ -209,7 +209,7 @@ const OrderReviewPanel = ({
                   No payment method selected
                 </p>
               )}
-            </div>
+            </div> */}
 
             <Separator />
 

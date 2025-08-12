@@ -104,15 +104,15 @@ const Products: React.FC = () => {
       render: (value, product) => (
         <div className="text-sm">
           <div className="font-medium">${value.toFixed(2)}</div>
-          {product?.quantityBasedDiscountTier?.length > 0 && (
+          {/* {product?.quantityBasedDiscountTier?.length > 0 && (
             <div className="text-gray-500 text-xs">
               % {Math.min(...product.quantityBasedDiscountTier.map((p) => p.discount)).toFixed(2)} - % 
               {Math.max(...product.quantityBasedDiscountTier.map((p) => p.discount)).toFixed(2)}
             </div>
-          )}
-          {product.discount && (
+          )} */}
+          {product.discount && !! product.discount?.discountValue && (
             <div className="text-red-500 text-xs">
-              -{product.discount.percentage}% off
+              -{product.discount.discountValue}% off
             </div>
           )}
         </div>
