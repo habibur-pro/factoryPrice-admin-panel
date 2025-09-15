@@ -11,6 +11,7 @@ export enum tagTypes {
   REPORT = "report",
   PAYMENT = "payment",
   DISCOUNT = "discount",
+  COUNTRY = "country",
 }
 
 // Automatically derive the list from the enum

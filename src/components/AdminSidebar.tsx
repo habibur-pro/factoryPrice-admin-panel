@@ -18,7 +18,8 @@ import {
   FileQuestion,
   BadgePercent,
   Shield,
-  Lock
+  Lock,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -46,8 +47,13 @@ const navItems: NavItem[] = [
   { icon: CreditCard, label: "Payments", path: "/payments" },
   // { icon: Archive, label: "Inventory", path: "/inventory" },
   { icon: FileQuestion, label: "New Leads", path: "/query" },
-  { icon: Shield, label: "Permission Management", path: "/permission-management" },
+  {
+    icon: Shield,
+    label: "Permission Management",
+    path: "/permission-management",
+  },
   { icon: Lock, label: "Change Password", path: "/change-password" },
+  { icon: Globe, label: "Countries", path: "/countries" },
   // { icon: BarChart2, label: "Sales Reports", path: "/reports" },
   // { icon: Mail, label: "Email Campaigns", path: "/email-campaigns" },
 ];
@@ -63,8 +69,10 @@ const AdminSidebar = ({ className }: AdminSidebarProps) => {
   const session = useSession();
   const role = session?.data?.user?.role as UserRole;
 
-  const allowedPaths = rolePermissions[role]
-  const filterNav = navItems?.filter((item) => allowedPaths?.includes(item.path))
+  const allowedPaths = rolePermissions[role];
+  const filterNav = navItems?.filter((item) =>
+    allowedPaths?.includes(item.path)
+  );
   return (
     <div
       className={cn(
@@ -115,9 +123,12 @@ const AdminSidebar = ({ className }: AdminSidebarProps) => {
                 />
                 {!collapsed && <span>{item.label}</span>}
               </Link>
-            )
+            );
           })}
-          <button onClick={() => dispatch(toggleChatModal())} className="flex items-center p-2 rounded-md hover:bg-primary/10 text-gray-700 hover:text-primary transition-all group cursor-pointer w-full">
+          <button
+            onClick={() => dispatch(toggleChatModal())}
+            className="flex items-center p-2 rounded-md hover:bg-primary/10 text-gray-700 hover:text-primary transition-all group cursor-pointer w-full"
+          >
             <MessageCircle
               className={cn("w-5 h-5", collapsed ? "mx-auto" : "mr-3")}
             />

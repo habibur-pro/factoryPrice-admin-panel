@@ -105,7 +105,7 @@ export interface IProduct {
   discount?: IDiscount;
   status: ProductStatus;
   videoURL?: string;
-  variantType:ProductVariantType
+  variantType: ProductVariantType;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -314,4 +314,12 @@ export interface IChatProduct {
   sku: string;
 }
 
-
+export interface IDbCountry {
+  id: string;
+  name: string;
+  code: string;
+  isAllowAutoPayment: boolean;
+  baseShippingCharge: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
