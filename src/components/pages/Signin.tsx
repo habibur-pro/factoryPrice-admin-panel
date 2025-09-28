@@ -136,7 +136,8 @@ const Signin = () => {
               <Button className="w-full" type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
-                    <Loader className="animate-spin" /> <span>Logging in...</span>
+                    <Loader className="animate-spin" />{" "}
+                    <span>Logging in...</span>
                   </div>
                 ) : (
                   "Login"

@@ -99,23 +99,29 @@ function DataTable<T extends Record<string, any>>({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-50 transition-colors">
-                {columns.map((column) => (
-                  <td
-                    key={column.key as string}
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                  >
-                    {column.render
-                      ? column.render(
-                          getValue(item, column.key as string),
-                          item
-                        )
-                      : String(getValue(item, column.key as string) ?? "")}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {!data || !data?.length ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No data found</p>
+              </div>
+            ) : (
+              data.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  {columns.map((column) => (
+                    <td
+                      key={column.key as string}
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                    >
+                      {column.render
+                        ? column.render(
+                            getValue(item, column.key as string),
+                            item
+                          )
+                        : String(getValue(item, column.key as string) ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
